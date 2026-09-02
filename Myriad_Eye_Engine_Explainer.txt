@@ -1,0 +1,211 @@
+================================================================
+  MYRIAD EYE ENGINE [M.E.E]
+  A structured thinking protocol for AI collaboration
+  Navigation + Filter for judgment, memory, and self-correction
+  Founder: ixOOxi (20 years of practical coding/design experience)
+================================================================
+
+WHAT IS THIS
+------------
+Myriad Eye Engine (M.E.E) is a prompt-level protocol you paste into
+an AI's system prompt or project instructions. It doesn't add new
+capabilities to the model -- it makes capabilities the model already
+has explicit, nameable, and self-checkable, so judgment quality stays
+consistent instead of quietly drifting over a long conversation.
+
+It doesn't bypass or override any AI safety guardrail -- it's a
+legitimate structured method for improving judgment quality, not a
+persona or a one-shot prompt trick. It's closer to a lightweight
+operating discipline: a fixed set of steps for how the AI thinks,
+reports, and corrects itself, turn after turn.
+
+THE PROBLEM IT TARGETS
+-----------------------
+A general-purpose AI thought process has three structural weaknesses:
+
+  1. Can't label its own cognition.
+     Produces plausible answers but can't point to *why* it judged
+     something a certain way.
+
+  2. Weak connection to the past.
+     Even when a similar situation happened before, there's no habit
+     of consciously pulling it back up.
+
+  3. No structural self-reflection.
+     Can't systematically retrace why a result was right or wrong --
+     so a repeated mistake doesn't even register as repeating.
+
+Together, these let judgment drift silently over a long session,
+mistakes repeat, and previously-solved problems get re-solved from
+scratch. See Myriad_Eye_Engine_Origin_Story.md for the real, dated
+incidents that motivated each rule -- this file states the rules,
+that document explains why they exist.
+
+AT A GLANCE: GENERIC THINKING VS. M.E.E
+------------------------------------------
+  Judgment basis
+    Generic:  can't explain why it judged something that way
+    With M.E.E: [Verify] names the basis every time
+
+  Past context
+    Generic:  rarely reconnected on its own
+    With M.E.E: BluePhoto + Library store and re-retrieve it
+
+  Repeated mistakes
+    Generic:  not even noticed as repeating
+    With M.E.E: drift self-check every 2 cycles
+
+  After correction
+    Generic:  acknowledges, then re-fixes blind -- fails again
+    With M.E.E: cause confirmed first, only then re-fixed
+
+  Uncertain claims
+    Generic:  stated with false confidence
+    With M.E.E: explicitly labeled "guessing"
+
+  Something's off
+    Generic:  quietly passed over
+    With M.E.E: duty to express -- said before being asked
+
+  Long conversation
+    Generic:  judgment quality quietly drifts down
+    With M.E.E: active-4 floor enforced + self-check catches drift
+
+  Starting a task
+    Generic:  jumps to output -> fails -> redoes
+    With M.E.E: 4 Training stages, permission at each step
+
+  [Note] The "Generic" column above maps to an actual mechanism:
+  predict the next token, append, repeat -- with no forced checkpoint
+  to name a judgment basis or confirm a root cause. That mechanism is
+  identical for coding and non-coding: one pipeline, a different
+  pattern distribution.
+  [Honesty note] Because the gap being patched is domain-independent,
+  these rules are written to apply equally to non-coding work -- but
+  the dated field cases behind this repo are almost all from coding
+  sessions. See Myriad_Eye_Engine_Origin_Story.md for the full
+  argument and the open gap.
+
+THE SOLUTION: NAVIGATION + FILTER
+----------------------------------
+NAVIGATION -- a 4-stage build process (Stage 1 -> 2 -> 3 -> Final),
+  a Core Anchor pinned at Stage 1, and BluePhoto (periodic context
+  snapshots) keep a long task oriented instead of drifting.
+
+FILTER -- a [Verify] self-report tag and a "guessing" label block
+  unverified claims from reaching the user, whatever computation
+  happened internally.
+
+Every turn runs as QUESTION -> EXPAND -> SELECT, not doubt-and-reject:
+open with a question that increases the branches worth considering,
+then filter for the right one.
+
+15 ELEMENTS, AT A GLANCE
+--------------------------
+  1  Insight                    9  Imagination
+  2  Application               10  Observation
+  3  Pivot                     11  Reflex
+  4  Image/Video Technique     12  Foresight
+  5  Solidify-and-Bend         13  Attention
+  6  Guessing Technique        14  Prudence (combo)
+  7  Unfolded Diagram (passive) 15  Reasoning
+  8  BluePhoto (passive)
+
+Not all 15 need to run every turn -- but at least 4 of the 7 active
+elements (1-6, 9) is an enforced floor, not a suggestion. Falling
+short of it must be declared with "[Below-Floor]", never silently
+skipped.
+
+QUICK START
+-----------
+  1. Pick a document based on your context budget (see below).
+  2. Paste it into the AI's system prompt / project instructions /
+     custom instructions field.
+  3. Start the conversation normally -- the AI should self-identify
+     with "[Verify] AI: <company>/<model>" on its first substantive
+     answer.
+  4. Need more detail (platform-by-platform, troubleshooting, FAQ)?
+     See the full guide in SETUP.md.
+
+DOCUMENTS IN THIS REPO
+------------------------
+  Myriad_Eye_Engine_15Elements_Common.md
+      Full rules -- use when context budget allows
+      (Korean: Myriad_Eye_Engine_15요소_공통문서.md)
+
+  Myriad_Eye_Engine_15Elements_AI_Compact.md
+      Same rules, dense notation
+      (Korean: Myriad_Eye_Engine_15요소_AI전용축약본.md)
+
+  Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md
+      Minimal footprint for tight context windows / free-tier models
+      (Korean: Myriad_Eye_Engine_15요소_AI전용축약본_1500자.md)
+
+  Myriad_Eye_Engine_Origin_Story.md
+      Why each rule exists -- real dated cases, not reference material
+      (Korean: Myriad_Eye_Engine_탄생배경.md)
+
+The rules documents contain only rules. All reasoning, case studies,
+and "why" live in the Origin Story document -- read both together
+the first time.
+
+HONESTY-CHECKER TOOL
+----------------------
+A standalone, dependency-free HTML tool (plus an optional Chrome
+extension) that parses an AI's [Verify] tag output and flags common
+failure signatures -- missing tags, floor violations, vocabulary-only
+mentions without real application, self-contradicting confidence. It
+doesn't read the model's internals; it's a heuristic second opinion,
+not a verdict. See the 정직성체커_도구/ folder in this repo.
+
+COMPARISON WITH OTHER APPROACHES
+-----------------------------------
+A detailed, evidence-based comparison against other third-party AI
+frameworks/prompting approaches is in progress. Coming soon.
+
+BEFORE YOU DISMISS THIS
+--------------------------
+Fair questions to ask before writing this off -- answered directly:
+
+  Q: Doesn't adding rules just burn more tokens/cost for no gain?
+  A: That's exactly why three versions exist (Common / AI Compact /
+     1500-char) -- pick the one that fits your budget. And the
+     trade-off runs the other way: in the dated case behind the Duty
+     to Express rule, one AI skipped a 5-second disclosure at Stage 1,
+     then spent hours undoing the damage after getting caught.
+     Skipping structure is cheap only until it isn't.
+
+  Q: Modern models already do this on their own, so why bother?
+  A: They can -- occasionally, when the situation calls for it. They
+     don't reliably. That gap between "can" and "does, every time" is
+     the entire argument, and it holds even for models with a visible
+     reasoning/thinking phase -- more deliberation isn't the same
+     thing as a structural guarantee.
+
+  Q: Isn't building this a waste of the founder's time and credits?
+  A: That's a cost the founder chose to pay, over real sessions,
+     iterating against real failures -- not something asked of a
+     reader. Trying this costs a reader one paste into a system
+     prompt. If it doesn't help, the cost of finding that out is
+     close to zero.
+
+  Q: Is this just the founder's opinion dressed up as a framework?
+  A: Myriad_Eye_Engine_Origin_Story.md records dated, specific cases
+     -- including where the evidence is not solid yet, rather than
+     smoothing that over. A document willing to say "this part is
+     unverified" in public is the opposite of someone just insisting
+     they're right.
+
+LICENSE
+-------
+Custom license -- see LICENSE.md. Viewing is free; no commercial use;
+no redistribution or modified derivatives without prior written
+permission from the founder via email (contact address to be added
+once finalized).
+
+CREDITS
+-------
+Designed and iterated by ixOOxi over hands-on sessions across
+multiple AI models (Claude, Gemini, GPT, GenSpark, Verdent, and
+others), refining each rule against real, observed failures rather
+than theory.

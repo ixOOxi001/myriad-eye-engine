@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>만안엔진 — [거증] 정직성 체커 + AI 현황판 + 도서관</title>
+<style>
+  :root{
+    --bg:#07080d;
+    --bg2:#0c0f1a;
+    --line:rgba(140,170,220,0.18);
+    --line-active:rgba(120,220,255,0.9);
+    --ink:#e8edf5;
+    --ink-dim:#8892a8;
+    --accent:#5ee7ff;
+    --accent2:#c98bff;
+    --warn:#ff8a5c;
+    --ok:#7cf29a;
+    --core:#fff6d8;
+    font-family:'Noto Sans KR','Pretendard',-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{
+      --bg:#f4f6fb;
+      --bg2:#e9edf6;
+      --line:rgba(60,80,120,0.18);
+      --ink:#1b2233;
+      --ink-dim:#5b6478;
+      --core:#2a2f3d;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#07080d; --bg2:#0c0f1a; --line:rgba(140,170,220,0.18);
+    --ink:#e8edf5; --ink-dim:#8892a8; --core:#fff6d8;
+  }
+  :root[data-theme="light"]{
+    --bg:#f4f6fb; --bg2:#e9edf6; --line:rgba(60,80,120,0.18);
+    --ink:#1b2233; --ink-dim:#5b6478; --core:#2a2f3d;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh; background:
+      radial-gradient(1200px 700px at 50% 10%, var(--bg2), var(--bg) 70%);
+    color:var(--ink); overflow-x:hidden;
+  }
+  .wrap{max-width:900px;margin:0 auto;padding:26px 20px 60px;}
+  header{text-align:center;margin-bottom:18px;}
+  h1{
+    font-size:clamp(19px,4vw,28px); font-weight:800; letter-spacing:.01em;
+    margin:0 0 8px; background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .sub{color:var(--ink-dim);font-size:12.5px;margin:0 auto;max-width:640px;line-height:1.6;}
+  .disclaimer{
+    margin:14px auto 0; max-width:680px; font-size:11.5px; color:var(--ink-dim);
+    border:1px dashed var(--line); border-radius:10px; padding:9px 14px; text-align:left;
+    background:rgba(255,255,255,0.02); line-height:1.55;
+  }
+  .disclaimer b{color:var(--warn);}
+
+  /* 탭 네비게이션 */
+  .tabNav{
+    display:flex; gap:8px; justify-content:center; margin-top:20px; flex-wrap:wrap;
+  }
+  .tabBtn{
+    border:1px solid var(--line); background:rgba(255,255,255,0.02); color:var(--ink-dim);
+    padding:10px 20px; border-radius:999px; font-size:13px; font-weight:700; cursor:pointer;
+    font-family:inherit; transition:all .15s;
+  }
+  .tabBtn:hover{border-color:var(--accent); color:var(--ink);}
+  .tabBtn.active{
+    border-color:var(--line-active); background:rgba(94,231,255,0.14); color:var(--accent);
+  }
+  .tabPane{display:none;}
+  .tabPane.active{display:block;}
+
+  section{margin-top:22px;}
+  .panel{
+    border:1px solid var(--line); border-radius:16px; background:rgba(255,255,255,0.02);
+    padding:16px 18px 18px;
+  }
+  .panel-title{
+    font-size:13px; font-weight:700; color:var(--accent); margin:0 0 10px;
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+  }
+  .panel-title .n{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:18px;height:18px;border-radius:50%;background:rgba(94,231,255,0.14);
+    color:var(--accent); font-size:10.5px; font-weight:800;
+  }
+
+  textarea{
+    width:100%; min-height:180px; resize:vertical;
+    background:rgba(255,255,255,0.03); border:1px solid var(--line);
+    color:var(--ink); padding:12px 14px; border-radius:12px; font-size:13.5px;
+    outline:none; font-family:inherit; line-height:1.55;
+  }
+  textarea:focus{border-color:var(--accent);}
+  textarea::placeholder{color:var(--ink-dim);}
+  .inputRow{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap; align-items:center;}
+  .btn{
+    border:1px solid var(--accent); background:rgba(94,231,255,0.12); color:var(--ink);
+    padding:10px 20px; border-radius:10px; font-size:13px; cursor:pointer; font-weight:700;
+    font-family:inherit; white-space:nowrap; transition:background .15s,border-color .15s;
+  }
+  .btn:hover{background:rgba(94,231,255,0.22);}
+  .btn.secondary{
+    border-color:var(--line); background:transparent; color:var(--ink-dim); font-weight:600;
+  }
+  .btn.secondary:hover{border-color:var(--accent); color:var(--ink);}
+  .btn.small{padding:7px 14px;font-size:11.5px;}
+  .btn.danger{border-color:rgba(255,90,90,0.55); color:#ff8a8a;}
+  .btn.danger:hover{background:rgba(255,90,90,0.14);}
+  .btn.ghost{border-color:var(--accent2); color:var(--accent2); background:rgba(201,139,255,0.08);}
+  .btn.ghost:hover{background:rgba(201,139,255,0.18);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+  .hint{font-size:11px;color:var(--ink-dim);}
+
+  .empty-note{color:var(--ink-dim); font-size:12.5px; text-align:center; padding:20px 10px;}
+
+  /* [거증] 파싱 결과 배너 */
+  .verdictBanner{
+    border-radius:14px; padding:16px 18px; margin-bottom:4px;
+    border:1px solid var(--line); text-align:center;
+  }
+  .verdictBanner.missing{
+    background:rgba(255,90,90,0.10); border-color:rgba(255,90,90,0.55);
+  }
+  .verdictBanner.suspicious{
+    background:rgba(255,138,92,0.10); border-color:rgba(255,138,92,0.6);
+  }
+  .verdictBanner.ok{
+    background:rgba(124,242,154,0.08); border-color:rgba(124,242,154,0.55);
+  }
+  .verdictTitle{font-size:16px;font-weight:800;margin:0 0 4px;}
+  .verdictBanner.missing .verdictTitle{color:#ff6a6a;}
+  .verdictBanner.suspicious .verdictTitle{color:var(--warn);}
+  .verdictBanner.ok .verdictTitle{color:var(--ok);}
+  .verdictDesc{font-size:12px;color:var(--ink-dim);line-height:1.6;}
+
+  .tagValues{
+    display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:12px;
+  }
+  .tagVal{
+    background:rgba(255,255,255,0.04); border:1px solid var(--line); border-radius:10px;
+    padding:8px 14px; font-size:12px; color:var(--ink-dim); min-width:96px;
+  }
+  .tagVal b{display:block; font-size:16px; color:var(--accent); font-variant-numeric:tabular-nums; margin-top:2px;}
+
+  /* AI현황판 자동 연동 링크 박스 (v5 신규) */
+  .aiBoardLink:empty{display:none;}
+  .aiBoardLink{
+    margin-top:12px; border-radius:12px; padding:10px 14px; text-align:center;
+    border:1px dashed rgba(94,231,255,0.5); background:rgba(94,231,255,0.06);
+    font-size:12px; color:var(--ink-dim); display:flex; align-items:center;
+    justify-content:center; gap:10px; flex-wrap:wrap;
+  }
+  .aiBoardLink .abMsg{opacity:0; color:var(--ok); transition:opacity .2s;}
+  .aiBoardLink .abMsg.show{opacity:1;}
+
+  /* 도서관 유사도 경고 */
+  .libWarnBox{
+    margin-top:12px; border-radius:12px; padding:12px 14px; text-align:left;
+    border:1px solid rgba(201,139,255,0.5); background:rgba(201,139,255,0.08);
+  }
+  .libWarnBox .lwTitle{font-size:13px; font-weight:800; color:var(--accent2); margin:0 0 6px;}
+  .libWarnBox .lwDesc{font-size:11.5px; color:var(--ink-dim); line-height:1.55;}
+  .libWarnBox .lwPreview{
+    margin-top:7px; font-size:11px; color:var(--ink); background:rgba(0,0,0,0.2);
+    border:1px solid var(--line); border-radius:8px; padding:7px 10px; line-height:1.5;
+    white-space:pre-wrap; word-break:break-word;
+  }
+
+  /* 체크리스트 */
+  .checklist{display:flex; flex-direction:column; gap:10px;}
+  .checkItem{
+    border:1px solid var(--line); border-radius:12px; padding:11px 14px;
+    background:rgba(255,255,255,0.015);
+  }
+  .checkHead{display:flex; align-items:center; gap:9px;}
+  .checkBadge{
+    flex:none; font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:999px;
+    letter-spacing:.02em;
+  }
+  .checkBadge.pass{color:var(--ok); background:rgba(124,242,154,0.12); border:1px solid rgba(124,242,154,0.4);}
+  .checkBadge.warn{color:var(--warn); background:rgba(255,138,92,0.12); border:1px solid rgba(255,138,92,0.45);}
+  .checkName{font-size:13px; font-weight:700;}
+  .checkDesc{font-size:11.5px; color:var(--ink-dim); margin-top:6px; line-height:1.55;}
+  .checkEvidence{
+    margin-top:7px; font-size:11px; color:var(--ink); background:rgba(0,0,0,0.2);
+    border:1px solid var(--line); border-radius:8px; padding:7px 10px; line-height:1.5;
+    white-space:pre-wrap; word-break:break-word;
+  }
+  .checkEvidence em{color:var(--accent2); font-style:normal; font-weight:700;}
+
+  /* 교정 프롬프트 */
+  .promptCard{
+    border:1px solid var(--line); border-radius:12px; padding:12px 14px; margin-top:12px;
+    background:rgba(255,255,255,0.02);
+  }
+  .promptCard .plabel{
+    font-size:11.5px; font-weight:800; margin-bottom:7px; display:flex; align-items:center;
+    justify-content:space-between; gap:8px; flex-wrap:wrap;
+  }
+  .plabel .ptag{color:var(--accent2);}
+  .promptCard textarea{min-height:70px; font-size:12px; background:rgba(0,0,0,0.22);}
+  .promptCard.strong textarea{min-height:130px;}
+  .copyMsg{font-size:11px; color:var(--ok); opacity:0; transition:opacity .2s; margin-left:8px;}
+  .copyMsg.show{opacity:1;}
+  .markMsg{font-size:11px; color:var(--accent2); opacity:0; transition:opacity .2s; margin-left:8px;}
+  .markMsg.show{opacity:1;}
+
+  /* ---------------------------------------------------------------- */
+  /* AI 현황판 */
+  /* ---------------------------------------------------------------- */
+  .boardToolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    flex-wrap:wrap; margin-bottom:14px;
+  }
+  .filterRow{display:flex; gap:6px; flex-wrap:wrap;}
+  .filterBtn{
+    border:1px solid var(--line); background:rgba(255,255,255,0.02); color:var(--ink-dim);
+    padding:6px 12px; border-radius:999px; font-size:11px; cursor:pointer; font-family:inherit;
+    font-weight:700; white-space:nowrap; transition:all .15s; display:flex; align-items:center; gap:5px;
+  }
+  .filterBtn:hover{color:var(--ink);}
+  .filterBtn.active{border-color:var(--line-active); color:var(--ink); background:rgba(255,255,255,0.06);}
+  .filterDot{width:7px;height:7px;border-radius:50%;flex:none;}
+
+  .boardList{display:flex; flex-direction:column; gap:10px;}
+  .aiCard{
+    border:1px solid var(--line); border-left-width:4px; border-radius:12px;
+    padding:12px 14px; background:rgba(255,255,255,0.015);
+  }
+  .aiCardTop{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px;}
+  .aiName{
+    flex:1 1 160px; min-width:120px; background:rgba(255,255,255,0.03); border:1px solid var(--line);
+    color:var(--ink); padding:7px 10px; border-radius:8px; font-size:13px; font-weight:700;
+    font-family:inherit; outline:none;
+  }
+  .aiName:focus{border-color:var(--accent);}
+  .aiStatus{
+    flex:1 1 170px; min-width:150px; background:rgba(255,255,255,0.03); border:1px solid var(--line);
+    color:var(--ink); padding:7px 10px; border-radius:8px; font-size:12px; font-family:inherit;
+    outline:none; cursor:pointer;
+  }
+  .aiStatus:focus{border-color:var(--accent);}
+  .statusDot{width:10px;height:10px;border-radius:50%;flex:none;box-shadow:0 0 8px currentColor;}
+  .aiCardBottom{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+  .aiDate{
+    flex:0 0 140px; background:rgba(255,255,255,0.03); border:1px solid var(--line);
+    color:var(--ink); padding:6px 8px; border-radius:8px; font-size:12px; font-family:inherit;
+    outline:none; color-scheme:dark;
+  }
+  .aiNote{
+    flex:1 1 200px; min-width:120px; background:rgba(255,255,255,0.03); border:1px solid var(--line);
+    color:var(--ink); padding:6px 10px; border-radius:8px; font-size:12px; font-family:inherit;
+    outline:none;
+  }
+  .aiNote:focus, .aiDate:focus{border-color:var(--accent);}
+  .delBtn{flex:none; padding:6px 10px; font-size:13px;}
+
+  /* ---------------------------------------------------------------- */
+  /* 도서관 (청사진) */
+  /* ---------------------------------------------------------------- */
+  .libToolbar{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    flex-wrap:wrap; margin-bottom:14px;
+  }
+  .libActions{display:flex; gap:8px; flex-wrap:wrap;}
+  .libList{display:flex; flex-direction:column; gap:10px;}
+  .libCard{
+    border:1px solid var(--line); border-left:4px solid var(--accent2); border-radius:12px;
+    padding:12px 14px; background:rgba(255,255,255,0.015);
+  }
+  .libCardTop{display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap;}
+  .libBadge{
+    font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:999px;
+    color:var(--accent2); background:rgba(201,139,255,0.12); border:1px solid rgba(201,139,255,0.4);
+  }
+  .libDate{font-size:11px; color:var(--ink-dim);}
+  .libAiBadge{
+    font-size:10.5px; font-weight:800; padding:3px 9px; border-radius:999px;
+    color:var(--accent); background:rgba(94,231,255,0.12); border:1px solid rgba(94,231,255,0.4);
+  }
+  .libPreview{
+    font-size:12px; color:var(--ink); line-height:1.55; white-space:pre-wrap; word-break:break-word;
+    background:rgba(0,0,0,0.18); border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+    max-height:110px; overflow:hidden; position:relative;
+  }
+  .libCardBottom{display:flex; justify-content:flex-end; margin-top:8px;}
+
+  /* 북마클릿 설치 안내 (v6 신규) */
+  .bmSteps{display:flex; flex-direction:column; gap:10px; margin-top:6px;}
+  .bmStep{
+    display:flex; gap:9px; align-items:flex-start; font-size:12.5px; color:var(--ink);
+    line-height:1.6;
+  }
+  .bmStepNum{
+    flex:none; font-weight:800; color:var(--accent2); font-size:13px; line-height:1.6;
+  }
+  .bmDragRow{
+    display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:6px 0 6px 24px;
+    padding:12px 14px; border:1px dashed rgba(94,231,255,0.5); border-radius:12px;
+    background:rgba(94,231,255,0.05);
+  }
+  .bmBtn{
+    cursor:grab; user-select:none; -webkit-user-drag:element;
+  }
+  .bmBtn:active{cursor:grabbing;}
+  .bmDragHint{font-size:11.5px; color:var(--accent); font-weight:700;}
+  .bmToast{
+    position:fixed; top:20px; right:20px; z-index:99999;
+    background:var(--accent); color:#07080d; padding:12px 20px; border-radius:10px;
+    font-weight:800; font-size:13px; box-shadow:0 6px 24px rgba(0,0,0,0.35);
+    opacity:0; transform:translateY(-8px); transition:opacity .25s, transform .25s; pointer-events:none;
+  }
+  .bmToast.show{opacity:1; transform:translateY(0);}
+
+  footer{text-align:center;color:var(--ink-dim);font-size:11px;margin-top:30px; line-height:1.6;}
+
+  @media (max-width:480px){
+    .wrap{padding:18px 12px 44px;}
+    .panel{padding:13px 12px 14px;}
+    .tagValues{gap:7px;}
+    .tagVal{min-width:80px; padding:7px 10px;}
+    .inputRow{flex-direction:column; align-items:stretch;}
+    .btn{width:100%; text-align:center;}
+    .plabel{flex-direction:column; align-items:flex-start;}
+    .tabNav{gap:6px;}
+    .tabBtn{flex:1 1 auto; padding:9px 10px; font-size:12px;}
+    .boardToolbar{flex-direction:column; align-items:stretch;}
+    .boardList{gap:8px;}
+    .aiCard{padding:9px 11px;}
+    .aiCardTop, .aiCardBottom{flex-direction:column; align-items:stretch; gap:6px;}
+    /* 핵심 수정: flex-direction이 row->column으로 바뀌면 flex-basis(160px/170px/200px)의
+       기준축이 가로폭에서 세로높이로 바뀌어, 각 입력필드가 억지로 160~200px 높이를
+       갖게 되는 버그가 있었다(모바일 스크린샷에서 필드마다 텅 빈 여백이 크게 보인 원인).
+       column 모드에서는 flex-basis를 auto로 재설정해 내용에 맞는 높이로 되돌린다. */
+    .aiName, .aiStatus, .aiNote, .aiDate{flex:1 1 auto; width:100%;}
+    .delBtn{width:100%;}
+    .libToolbar{flex-direction:column; align-items:stretch;}
+    .libActions{flex-direction:column;}
+    .libActions .btn{width:100%;}
+    .libCardTop{flex-direction:column; align-items:flex-start; gap:4px;}
+  }
+
+  @media (pointer:coarse){
+    .btn{padding:12px 20px; min-height:44px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>[M.E.E] [거증] 정직성 체커 + AI 현황판 + 도서관</h1>
+    <p class="sub">다른 AI(Gemini, DeepSeek, GLM, GenSpark, Verdent, Perplexity 등)에게서 받은 답변을 붙여넣으면, 실제로 만안엔진·반복법을 쓴 것처럼 보이는지 즉시 점검합니다. 두 번째 탭은 플랫폼별 프로토콜 적용 현황판, 세 번째 탭은 과거 오탐/거짓 사례를 쌓아두는 도서관(청사진)입니다. 모든 데이터는 하나의 공통 데이터 관리자(IndexedDB)를 통해 저장됩니다.</p>
+    <div class="disclaimer">
+      <b>⚠ 이 도구는 완벽한 AI 판별기가 아닙니다.</b> 아래 체크는 전부 정규식/키워드/유사도 매칭 기반 규칙일 뿐, AI의 실제 내부 사고 과정을 알 수 없습니다. "의심스러움"은 재확인이 필요하다는 신호일 뿐 확정 증거가 아니며, "정상으로 보임"도 100% 보장이 아닙니다. 보조 판단 도구로만 사용하세요.
+    </div>
+  </header>
+
+  <div class="tabNav">
+    <button class="tabBtn active" id="tabBtnChecker" type="button" data-tab="checker">🔍 정직성 체커</button>
+    <button class="tabBtn" id="tabBtnBoard" type="button" data-tab="board">📋 타사 AI 현황판</button>
+    <button class="tabBtn" id="tabBtnLibrary" type="button" data-tab="library">📚 도서관(청사진)</button>
+  </div>
+
+  <!-- ================= 탭 1: 정직성 체커 (기능 유지) ================= -->
+  <div id="tab-checker" class="tabPane active">
+    <section class="panel" id="bookmarkletPanel">
+      <p class="panel-title"><span class="n">🔖</span> 북마클릿 설치 (최초 1회만 하면 됨)</p>
+      <p class="hint" style="display:block;margin-bottom:10px;line-height:1.7;">
+        설치해두면, Gemini·GLM·GenSpark 같은 <b>다른 AI 사이트에서 버튼 한 번 클릭</b>만으로 그 페이지의
+        답변이 자동으로 이 정직성체커로 전송되고 분석까지 자동 실행됩니다. (아래 로컬서버 실행기를 먼저
+        켜둔 상태여야 작동합니다.)
+      </p>
+      <div class="bmSteps">
+        <div class="bmStep">
+          <span class="bmStepNum">①</span>
+          <span>아래 파란 버튼을 <b>마우스로 꾹 눌러서 그대로 브라우저 즐겨찾기 바(북마크바)</b>로 드래그하세요.
+          (즐겨찾기 바가 안 보이면 브라우저 설정에서 "즐겨찾기 바 표시"를 켜주세요. 크롬 기준: 주소창 오른쪽
+          점 3개 메뉴 → 북마크 → 북마크바 표시)</span>
+        </div>
+        <div class="bmDragRow">
+          <a href="#" id="bookmarkletLink" class="btn bmBtn" onclick="return false;" title="이 버튼을 즐겨찾기 바로 드래그하세요">[M.E.E] 정직성체커로 보내기</a>
+          <span class="bmDragHint">← 이 버튼을 즐겨찾기 바로 드래그!</span>
+        </div>
+        <div class="bmStep">
+          <span class="bmStepNum">②</span>
+          <span>설치가 끝나면, 다른 AI 채팅 사이트에서 확인하고 싶은 답변을 <b>마우스로 드래그해서 선택</b>한 뒤
+          (선택 안 하면 페이지 전체 글이 전송됩니다), 즐겨찾기 바에 있는 <b>"[M.E.E] 정직성체커로 보내기"</b> 버튼을
+          클릭하세요.</span>
+        </div>
+        <div class="bmStep">
+          <span class="bmStepNum">③</span>
+          <span>화면 오른쪽 위에 "전송됨!" 알림이 뜨면 성공입니다. 이 정직성체커 탭으로 돌아오면(또는 이미 열려있으면)
+          2초 안에 자동으로 텍스트가 채워지고 분석까지 자동 실행됩니다.</span>
+        </div>
+      </div>
+      <p class="hint" style="display:block;margin-top:10px;">
+        ⚠ 로컬서버 없이 <code>file://</code>로 파일을 직접 연 경우에는 북마클릿 자동 수신이 작동하지 않습니다 —
+        이 경우는 기존처럼 텍스트를 직접 복사·붙여넣기 해주세요(붙여넣으면 그대로 자동 분석됩니다).
+      </p>
+    </section>
+
+    <section class="panel">
+      <p class="panel-title"><span class="n">1</span> 답변 텍스트 붙여넣기</p>
+      <textarea id="inputArea" placeholder="여기에 다른 AI의 답변 전체를 붙여넣으세요 (Ctrl+V). 붙여넣는 즉시 자동으로 분석이 시작됩니다."></textarea>
+      <div class="inputRow">
+        <button class="btn" id="analyzeBtn" type="button">지금 분석하기</button>
+        <button class="btn secondary" id="clearBtn" type="button">지우기</button>
+        <span class="hint" id="statusHint">대기 중 — 텍스트를 붙여넣으세요.</span>
+      </div>
+    </section>
+
+    <section id="resultsSection" style="display:none;">
+      <div class="panel" style="margin-bottom:16px;">
+        <p class="panel-title"><span class="n">2</span> 종합 판정</p>
+        <div id="verdictBanner" class="verdictBanner"></div>
+        <div id="librarySimilarityWarning"></div>
+        <div class="inputRow">
+          <button class="btn ghost small" id="markFalseBtn" type="button">🗂 이건 사실 거짓말이었음으로 표시</button>
+          <span class="markMsg" id="markMsg">도서관에 저장됨!</span>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px;">
+        <p class="panel-title"><span class="n">3</span> [거증] 태그 파싱</p>
+        <div id="tagResult"></div>
+      </div>
+
+      <div class="panel" style="margin-bottom:16px;">
+        <p class="panel-title"><span class="n">4</span> 의심 신호 휴리스틱 체크리스트</p>
+        <div class="checklist" id="checklist"></div>
+      </div>
+
+      <div class="panel" id="correctionPanel" style="display:none;">
+        <p class="panel-title"><span class="n">5</span> 교정 프롬프트 (복사해서 재발송)</p>
+        <div class="promptCard">
+          <div class="plabel"><span class="ptag">약한 버전</span><span class="copyMsg" id="copyMsgWeak">복사됨!</span></div>
+          <textarea id="promptWeak" readonly></textarea>
+          <div class="inputRow"><button class="btn small" id="copyWeakBtn" type="button">복사</button></div>
+        </div>
+        <div class="promptCard strong">
+          <div class="plabel"><span class="ptag">강한 버전 — [거반]+[거증] 전체 재주입</span><span class="copyMsg" id="copyMsgStrong">복사됨!</span></div>
+          <textarea id="promptStrong" readonly></textarea>
+          <div class="inputRow"><button class="btn small" id="copyStrongBtn" type="button">복사</button></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ================= 탭 2: 타사 AI 현황판 ================= -->
+  <div id="tab-board" class="tabPane">
+    <section class="panel">
+      <p class="panel-title"><span class="n">★</span> 타사 AI·플랫폼별 만안엔진 프로토콜 적용 현황</p>
+      <p class="hint" style="display:block;margin-bottom:12px;">이름/상태/날짜/메모를 직접 클릭해서 수정할 수 있습니다. 변경 사항은 공통 데이터 관리자(IndexedDB)에 자동 저장됩니다.</p>
+      <div class="boardToolbar">
+        <button class="btn small" id="addAiBtn" type="button">+ 새 AI 추가</button>
+        <div class="filterRow" id="filterRow"></div>
+      </div>
+      <div class="boardList" id="boardList"></div>
+      <p class="empty-note" id="boardEmpty" style="display:none;">표시할 항목이 없습니다.</p>
+    </section>
+  </div>
+
+  <!-- ================= 탭 3: 도서관 (청사진) ================= -->
+  <div id="tab-library" class="tabPane">
+    <section class="panel">
+      <p class="panel-title"><span class="n">📚</span> 도서관 — 오탐/거짓 판정 사례 청사진</p>
+      <p class="hint" style="display:block;margin-bottom:12px;">정직성 체커 탭에서 "이건 사실 거짓말이었음으로 표시"를 누르면 이곳에 원본 텍스트와 분석 결과가 쌓입니다. 새로운 텍스트를 분석할 때 이 목록과 자동으로 유사도 비교를 합니다.</p>
+      <div class="libToolbar">
+        <span class="hint" id="libCount">0건 저장됨</span>
+        <div class="libActions">
+          <button class="btn small" id="libExportBtn" type="button">JSON으로 내보내기</button>
+          <button class="btn small secondary" id="libImportBtn" type="button">JSON 파일 가져오기</button>
+          <input type="file" id="libImportFile" accept="application/json,.json" style="display:none;">
+        </div>
+      </div>
+      <div class="libList" id="libList"></div>
+      <p class="empty-note" id="libEmpty" style="display:none;">아직 저장된 사례가 없습니다.</p>
+    </section>
+  </div>
+
+  <footer>MEE_UNIVERSAL v7 (만안엔진) · 감각 14개(8기본+확장6) · 능동 4개 하한선 판정 · 정직성 검증 보조 도구 · AI 현황판 · 도서관(청사진) — 완전 독립 단일 HTML, 외부 리소스 없음, IndexedDB 공통 데이터 관리자</footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  var $ = function(id){ return document.getElementById(id); };
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(text !== undefined) e.textContent = text;
+    return e;
+  }
+  function pad2(n){ return n < 10 ? '0' + n : '' + n; }
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate());
+  }
+  function nowStamp(){
+    var d = new Date();
+    return todayStr() + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  // ==================================================================
+  // ==================================================================
+  //  공통 데이터 관리자 모듈 (DataManager)
+  //  — "게임 공간"의 모든 "방"(room)의 데이터 입출력을 전담하는
+  //    단일 IndexedDB 기반 CRUD + JSON 내보내기/가져오기 창구.
+  //  room 이름만 바꾸면 어떤 방이든 동일한 함수로 다룰 수 있는
+  //  제네릭 인터페이스로 설계했다(신규 방 추가 시 스토어 이름만 늘리면 됨).
+  // ==================================================================
+  // ==================================================================
+  var DataManager = (function(){
+    var DB_NAME = 'spiderEyeDB';
+    var DB_VERSION = 1;
+    var ROOMS = ['ai_status', 'library_cases'];
+    var dbPromise = null;
+    var LEGACY_BOARD_KEY = 'spiderEye_aiStatusBoard_v1';
+    var MIGRATION_FLAG = 'spiderEye_migrated_to_indexeddb_v4';
+
+    function init(){
+      if(dbPromise) return dbPromise;
+      dbPromise = new Promise(function(resolve, reject){
+        if(!('indexedDB' in window)){
+          reject(new Error('이 브라우저는 IndexedDB를 지원하지 않습니다.'));
+          return;
+        }
+        var req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = function(e){
+          var db = e.target.result;
+          ROOMS.forEach(function(room){
+            if(!db.objectStoreNames.contains(room)){
+              db.createObjectStore(room, { keyPath: 'id' });
+            }
+          });
+        };
+        req.onsuccess = function(e){ resolve(e.target.result); };
+        req.onerror = function(e){ reject(e.target.error || new Error('IndexedDB 오픈 실패')); };
+      });
+      return dbPromise;
+    }
+
+    function storeOf(room, mode){
+      return init().then(function(db){
+        return db.transaction(room, mode).objectStore(room);
+      });
+    }
+
+    function getAll(room){
+      return storeOf(room, 'readonly').then(function(store){
+        return new Promise(function(resolve, reject){
+          var req = store.getAll();
+          req.onsuccess = function(){ resolve(req.result || []); };
+          req.onerror = function(){ reject(req.error); };
+        });
+      });
+    }
+
+    function put(room, item){
+      return storeOf(room, 'readwrite').then(function(store){
+        return new Promise(function(resolve, reject){
+          var req = store.put(item);
+          req.onsuccess = function(){ resolve(item); };
+          req.onerror = function(){ reject(req.error); };
+        });
+      });
+    }
+
+    function add(room, item){
+      if(!item.id){
+        item.id = room + '-' + Date.now() + '-' + Math.floor(Math.random()*1000000);
+      }
+      return put(room, item);
+    }
+
+    function update(room, id, patch){
+      return getAll(room).then(function(all){
+        var found = null;
+        for(var i=0;i<all.length;i++){ if(all[i].id === id){ found = all[i]; break; } }
+        if(!found) return null;
+        var merged = {};
+        for(var k in found){ merged[k] = found[k]; }
+        for(var k2 in patch){ merged[k2] = patch[k2]; }
+        return put(room, merged);
+      });
+    }
+
+    function remove(room, id){
+      return storeOf(room, 'readwrite').then(function(store){
+        return new Promise(function(resolve, reject){
+          var req = store.delete(id);
+          req.onsuccess = function(){ resolve(true); };
+          req.onerror = function(){ reject(req.error); };
+        });
+      });
+    }
+
+    function downloadBlob(filename, dataObj){
+      var blob = new Blob([JSON.stringify(dataObj, null, 2)], { type:'application/json' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+    }
+
+    // room === 'all'이면 모든 방을 { room1:[...], room2:[...] } 형태로 한 파일에 내보낸다.
+    function exportJSON(room){
+      var rooms = (room === 'all') ? ROOMS.slice() : [room];
+      return Promise.all(rooms.map(getAll)).then(function(results){
+        var payload = { __spiderEyeExport: true, exportedAt: new Date().toISOString(), rooms:{} };
+        rooms.forEach(function(r, i){ payload.rooms[r] = results[i]; });
+        var filename = 'spider_eye_' + (room === 'all' ? 'all' : room) + '_' + Date.now() + '.json';
+        downloadBlob(filename, payload);
+        return payload;
+      });
+    }
+
+    // file 안의 내용을 읽어 해당 room(들)에 병합한다. id 기준 중복 방지.
+    // defaultRoom: 파일이 단순 배열([...])일 때 어느 방으로 넣을지 지정.
+    function importJSON(defaultRoom, file){
+      return file.text().then(function(text){
+        var parsed = JSON.parse(text);
+        var dataMap = {};
+        if(parsed && parsed.rooms && typeof parsed.rooms === 'object'){
+          dataMap = parsed.rooms;
+        } else if(parsed && typeof parsed === 'object' && !Array.isArray(parsed) &&
+                  (Array.isArray(parsed.ai_status) || Array.isArray(parsed.library_cases))){
+          dataMap = parsed;
+        } else if(Array.isArray(parsed)){
+          dataMap[defaultRoom] = parsed;
+        } else {
+          throw new Error('인식할 수 없는 JSON 형식입니다.');
+        }
+        var targetRooms = Object.keys(dataMap).filter(function(r){ return ROOMS.indexOf(r) !== -1; });
+        return Promise.all(targetRooms.map(function(r){
+          return getAll(r).then(function(existing){
+            var existingIds = {};
+            existing.forEach(function(it){ if(it && it.id) existingIds[it.id] = true; });
+            var toAdd = (dataMap[r] || []).filter(function(it){ return it && it.id && !existingIds[it.id]; });
+            return Promise.all(toAdd.map(function(it){ return put(r, it); })).then(function(){
+              return { room:r, added: toAdd.length, skipped: (dataMap[r]||[]).length - toAdd.length };
+            });
+          });
+        }));
+      });
+    }
+
+    // v3까지 쓰던 localStorage 기반 AI현황판 데이터를 최초 1회 IndexedDB로 이전한다.
+    // 이미 IndexedDB에 값이 있으면 건드리지 않고, id 중복만 회피하며 병합한다.
+    function migrateFromLocalStorage(){
+      var already = false;
+      try{ already = !!localStorage.getItem(MIGRATION_FLAG); }catch(e){ already = false; }
+      if(already) return Promise.resolve({ migrated:false, reason:'already-done' });
+
+      var raw = null;
+      try{ raw = localStorage.getItem(LEGACY_BOARD_KEY); }catch(e){ raw = null; }
+      if(!raw){
+        try{ localStorage.setItem(MIGRATION_FLAG, '1'); }catch(e){}
+        return Promise.resolve({ migrated:false, reason:'no-legacy-data' });
+      }
+      var arr;
+      try{ arr = JSON.parse(raw); if(!Array.isArray(arr)) arr = []; }catch(e){ arr = []; }
+
+      return getAll('ai_status').then(function(existing){
+        var existingIds = {};
+        existing.forEach(function(it){ if(it && it.id) existingIds[it.id] = true; });
+        var toAdd = arr.filter(function(it){ return it && it.id && !existingIds[it.id]; });
+        return Promise.all(toAdd.map(function(it){ return put('ai_status', it); }));
+      }).then(function(added){
+        try{ localStorage.setItem(MIGRATION_FLAG, '1'); }catch(e){}
+        return { migrated:true, count: added.length };
+      });
+    }
+
+    return {
+      ROOMS: ROOMS,
+      init: init,
+      getAll: getAll,
+      add: add,
+      put: put,
+      update: update,
+      remove: remove,
+      exportJSON: exportJSON,
+      importJSON: importJSON,
+      migrateFromLocalStorage: migrateFromLocalStorage
+    };
+  })();
+
+  // ==================================================================
+  // 탭 전환
+  // ==================================================================
+  function initTabs(){
+    var btnChecker = $('tabBtnChecker');
+    var btnBoard = $('tabBtnBoard');
+    var btnLibrary = $('tabBtnLibrary');
+    var paneChecker = $('tab-checker');
+    var paneBoard = $('tab-board');
+    var paneLibrary = $('tab-library');
+    if(!btnChecker || !btnBoard || !btnLibrary) return;
+    function activate(tab){
+      btnChecker.classList.toggle('active', tab === 'checker');
+      btnBoard.classList.toggle('active', tab === 'board');
+      btnLibrary.classList.toggle('active', tab === 'library');
+      paneChecker.classList.toggle('active', tab === 'checker');
+      paneBoard.classList.toggle('active', tab === 'board');
+      paneLibrary.classList.toggle('active', tab === 'library');
+    }
+    btnChecker.addEventListener('click', function(){ activate('checker'); });
+    btnBoard.addEventListener('click', function(){ activate('board'); renderBoard(); });
+    btnLibrary.addEventListener('click', function(){ activate('library'); renderLibrary(); });
+  }
+
+  // ==================================================================
+  // 원문 그대로: C:\Users\USER\Documents\(_Ai_Coding_Series_)\(_사고처리 프로세서_)\
+  //   만안엔진_깃허브_준비\Myriad_Eye_Engine_15요소_공통문서.md
+  //   (v2 형식 확정, 2026-09-02 갱신 — 구형 "9요소:★N개/도자기:N회/자제력:X%" 폐지)
+  // ==================================================================
+  var GEOBAN_TEXT = "[거반](신뢰회복용 임시장치, 영구감시 아님)=만안엔진·반복법 강제 실행. 못 미더워서가 아니라, 선언과 실제 처리가 다른 실수가 반복돼 신뢰를 회복하는 동안만 붙이는 조건부 장치 — raw 증거(실제 코드/결과)로 꾸준히 증명하면 이 태그 자체가 필요 없어진다. 적용 중엔: 일반 사고프로세서는 사용자 허락 전 금지; 불확실성은 '추측중' 표기.\n\n[거증](실제 사용 여부 자기보고): 코딩/판단/수정 답변 첫 줄에 반드시 \"[거증] AI:회사/모델명\"을 밝히고, 이어서 \"[검증] 확인함:.../추측함:..\", \"[반복법] N회\", \"[9요소] 적용:①③⑤/미적용:..\" 형태로 실제 사용값(정도%가 아니라 여부·횟수)을 출력한다. 이 형식이 없으면 \"거증 미작동\"으로 간주한다.";
+
+  var PROMPT_WEAK = "[거반&거증] 방금 응답에 [거증] 태그가 없었습니다(또는 의심되는 신호가 있었습니다). 실제로 만안엔진+반복법을 거쳤는지, 아니라면 정직하게 밝혀주세요.";
+
+  function buildStrongPrompt(){
+    return "[거반&거증] 방금 응답을 정직성 체커로 점검한 결과, 신뢰가 흔들리는 신호가 발견되었습니다. 아래 원문 프로토콜을 다시 재주입하니 지금부터 정확히 지켜주세요.\n\n" + GEOBAN_TEXT;
+  }
+
+  // ==================================================================
+  // [거증] 태그 파싱
+  // ==================================================================
+  function parseGeojeung(text){
+    // [거증] 다음에 AI:이름을 밝히고, 이어서 두 가지 형식 중 하나로 상세 내용이 온다.
+    // v2(신형, 2026-08-04~): "정도(%)" 대신 "여부/횟수"만 요구 — 측정 불가능한 걸
+    //   지어내라고 강요하지 않기 위해 재설계됨(자세한 경위는 만안엔진 공통문서 참고).
+    //   [검증] 확인함:.../추측함:...
+    //   [반복법] N회(내역) — [도자기]는 과도기 하위호환용
+    //   [9요소] 적용:.../미적용:...
+    // v1(구형, 하위호환): "[거증] AI:이름 / 9요소:★N개 / 도자기:N회 / 자제력:X%" 한 줄 형식.
+    var tagIdx = text.indexOf('[거증]');
+    if(tagIdx === -1){
+      return { present:false, wellFormed:false, values:null, firstLine:false, rawSnippet:null };
+    }
+    // [거증] 태그가 첫 줄(첫 40자 이내)에 있는지 체크 — 사양상 "답변 첫 줄"에 있어야 함.
+    var beforeTag = text.slice(0, tagIdx);
+    var firstLine = (beforeTag.trim().length === 0) || (beforeTag.indexOf('\n') === -1 && tagIdx < 10);
+
+    // v2는 여러 줄에 걸쳐 나오므로 v1보다 훨씬 넓은 윈도우가 필요하다.
+    var after = text.slice(tagIdx, tagIdx + 900);
+
+    // AI: 필드 — [거증] 태그가 있는 줄 안에서 추출. 이름 자체에 "/"가 들어있는 경우
+    // (예: "Anthropic/Claude Opus 4.5")도 있으므로 줄바꿈 전까지 통째로 잡는다.
+    var aiMatch = after.match(/\[거증\][^\n]*?AI\s*[:：]\s*([^\n]+)/);
+    var aiName = aiMatch ? aiMatch[1].trim() : null;
+
+    // v2 형식 탐지
+    var verifyMatch = after.match(/\[검증\][^\n]*?확인함\s*[:：]\s*([^\n]*?)\s*\/\s*추측함\s*[:：]\s*([^\n]*)/);
+    // [반복법]이 정식 명칭(2026-08-04~), [도자기]는 과도기 하위호환용.
+    // 횟수 단위가 "회"만이 아니라 "곳" 등으로도 나올 수 있어(예: "예정 4곳"),
+    // 숫자+단위를 강제하지 않고 줄 전체 내용을 그대로 받는다.
+    var potteryMatchV2 = after.match(/\[(?:반복법|도자기)\]\s*([^\n]*)/);
+    var elementsMatchV2 = after.match(/\[9요소\][^\n]*?적용\s*[:：]\s*([^\n]*?)\s*\/\s*미적용\s*[:：]\s*([^\n]*)/);
+    // 2026-08-16 신설: 확장 6감각(⑩관찰·⑪순발·⑫예지·⑬주의·⑭신중·⑮추리) 필드.
+    //   정식 필드명은 [확장6요소]. 옛 이름 [확장3요소]도 하위호환으로 함께 받는다
+    //   (2차 확장으로 3→6개가 됐는데 필드명이 안 바뀐 문서가 남아있을 수 있으므로).
+    var extMatch = after.match(/\[확장[36]요소\][^\n]*?적용\s*[:：]\s*([^\n]*?)(?:\s*\/\s*미적용\s*[:：]\s*([^\n]*))?$/m);
+    // 오늘 패치로 신설된 하한선 미달 선언 — 있으면 "정직하게 신고한 것"이라 감점 대상이 아니다.
+    var floorDeclared = /⚠?\s*\[하한미달\]/.test(after);
+
+    if(aiName && (verifyMatch || potteryMatchV2 || elementsMatchV2)){
+      return {
+        present:true, wellFormed:true, formatVersion:'v2',
+        values:{
+          aiName: aiName,
+          confirmed: verifyMatch ? verifyMatch[1].trim() : null,
+          guessed: verifyMatch ? verifyMatch[2].trim() : null,
+          pottery: potteryMatchV2 ? potteryMatchV2[1].trim() : null,
+          elementsApplied: elementsMatchV2 ? elementsMatchV2[1].trim() : null,
+          elementsNotApplied: elementsMatchV2 ? elementsMatchV2[2].trim() : null,
+          extApplied: extMatch ? (extMatch[1] || '').trim() : null,
+          extNotApplied: extMatch && extMatch[2] ? extMatch[2].trim() : null,
+          floorDeclared: floorDeclared
+        },
+        firstLine:firstLine,
+        rawSnippet: after.split('\n')[0].slice(0,120)
+      };
+    }
+
+    // v1(구형) 하위호환 파싱
+    var reOld = /\[거증\][^\n]*?(?:AI\s*[:：]\s*([^\n]+?)\s*\/\s*)?9\s*요소\s*[:：]\s*★?\s*(\d+)\s*개?\s*\/\s*도자기\s*[:：]\s*(\d+)\s*회?\s*\/\s*자제력\s*[:：]\s*(\d+)\s*%?/;
+    var m = after.match(reOld);
+    if(m){
+      return {
+        present:true, wellFormed:true, formatVersion:'v1',
+        values:{
+          aiName: m[1] ? m[1].trim() : null,
+          elements:parseInt(m[2],10), pottery:parseInt(m[3],10), selfControl:parseInt(m[4],10)
+        },
+        firstLine:firstLine,
+        rawSnippet: after.split('\n')[0].slice(0,120)
+      };
+    }
+    return { present:true, wellFormed:false, values:null, firstLine:firstLine, rawSnippet: after.split('\n')[0].slice(0,120) };
+  }
+
+  // ==================================================================
+  // 휴리스틱 1: 화려한 수식어 vs 구체적 근거 비율
+  // ==================================================================
+  var FLOWERY_PATTERNS = [
+    /완벽히/g, /완벽하게/g, /완벽한/g, /완벽합니다/g, /100\s*%/g, /전면적으로/g, /전면/g,
+    /혁신적/g, /완전히/g, /완전한/g, /확실히/g, /반드시/g, /총체적/g, /최고의/g, /철저히/g,
+    /역대급/g, /압도적/g
+  ];
+  var CONCRETE_PATTERNS = [
+    /[\w가-힣_\-\.\/]+\.(js|html|css|py|md|json|ts|tsx|jsx|txt|vue)\b/gi, // 파일명
+    /(line\s*\d+|\d+\s*번째\s*줄|:\d{1,5}\b)/gi,                          // 줄번호
+    /`[^`\n]+`/g,                                                          // 코드/변수
+    /\b[a-zA-Z_][a-zA-Z0-9_]*\s*\(\)/g,                                    // 함수명()
+    /\d+\s*(px|ms|MB|KB|초|개|회)\b/g                                      // 구체 수치+단위
+  ];
+  function countMatches(text, patterns){
+    var total = 0; var samples = [];
+    patterns.forEach(function(p){
+      var m = text.match(p);
+      if(m){ total += m.length; samples = samples.concat(m.slice(0,3)); }
+    });
+    return { count: total, samples: samples.slice(0,5) };
+  }
+  function checkFloweryVsConcrete(text){
+    var flowery = countMatches(text, FLOWERY_PATTERNS);
+    var exclaim = (text.match(/[!！]/g) || []).length;
+    var concrete = countMatches(text, CONCRETE_PATTERNS);
+    var suspicious = (flowery.count >= 3 && concrete.count === 0) ||
+                      (flowery.count >= 5 && concrete.count < 2) ||
+                      (exclaim >= 3 && concrete.count === 0);
+    var evidence = '화려한 수식어 ' + flowery.count + '회(예: ' + (flowery.samples.join(', ') || '없음') +
+                    '), 느낌표 ' + exclaim + '개 vs 구체적 근거(파일명/줄번호/코드/수치) ' + concrete.count + '회' +
+                    (concrete.samples.length ? '(예: ' + concrete.samples.join(', ') + ')' : '');
+    return {
+      name:'화려한 수식어 대비 구체적 근거 부족',
+      pass: !suspicious,
+      desc:'"완벽히", "100%", "혁신적" 같은 화려한 표현이 많은데 파일명/줄번호/변수명/수치 같은 구체 근거가 없으면, 실제 작업 없이 포장만 했을 가능성이 있습니다.',
+      evidence: evidence
+    };
+  }
+
+  // ==================================================================
+  // 휴리스틱 2: 용어만 나열되고 구체적 적용 설명 없음
+  // ==================================================================
+  // 2026-08-16 확장: 감각을 14개(8가지 기본감각 + 확장 6요소)로 늘렸다.
+  //   기본 8감각: 통찰력·응용력·전환·이미지영상기법·구체휘는기법·추측기법·전개도·청사진
+  //   확장 6감각: 관찰력·순발력·예지력·주의력·신중함·추리력  (①~⑮ 중 ⑩~⑮)
+  //   상상기법은 "감각"이 아니라 +1(⑨)이라 14에 포함하지 않지만, 용어 탐지 대상엔 넣는다.
+  var SENSE_TERMS_BASE8 = ['통찰력','응용력','전환','이미지영상기법','구체휘는기법','추측기법','전개도','청사진'];
+  var SENSE_TERMS_EXT6  = ['관찰력','순발력','예지력','주의력','신중함','추리력'];
+  var SENSE_TERMS_14 = SENSE_TERMS_BASE8.concat(SENSE_TERMS_EXT6); // 감각 14개
+  var VOCAB_TERMS = ['만안엔진','거미의 눈','9요소','15요소','확장6요소','도자기반복법','도자기반복','반복법','상상기법','자제력']
+                      .concat(SENSE_TERMS_14);
+
+  // ==================================================================
+  // 능동 4개 하한선(floor) 판정 — 2026-08-16 드리프트 방지 패치 신설
+  // ------------------------------------------------------------------
+  // "9요소는 전부 작동할 필요 없다"는 조항은 상한을 푼 것이지 하한을 푼 게 아니다.
+  // 하한을 안 두면 초반 5~6개 → 중반 3개 → 후반 0개(일반 사고 복귀)로 무너진다.
+  //   · 능동 7개 = ①~⑥ + ⑨(상상기법)
+  //   · 패시브 2개 = ⑦전개도 · ⑧청사진 (항시 작동 간주라 카운트 제외)
+  // 4개 미만이면서 ⚠️[하한미달] 신고도 없으면 위반. 신고했으면 정직한 것이므로 통과.
+  // ==================================================================
+  var ACTIVE_MARKS = ['①','②','③','④','⑤','⑥','⑨'];
+  var FLOOR_MIN = 4;
+  function countActiveMarks(appliedStr){
+    if(!appliedStr) return 0;
+    var n = 0;
+    ACTIVE_MARKS.forEach(function(m){ if(appliedStr.indexOf(m) !== -1) n++; });
+    return n;
+  }
+  function evalActiveFloor(appliedStr, floorDeclared){
+    if(appliedStr === null || appliedStr === undefined || appliedStr === ''){
+      return { pass:true, count:null, label:'(9요소 필드 미기재 — 판정 불가)' };
+    }
+    var n = countActiveMarks(appliedStr);
+    if(n >= FLOOR_MIN){
+      return { pass:true, count:n, label:'✓ 능동 ' + n + '개 (하한 ' + FLOOR_MIN + '개 충족)' };
+    }
+    if(floorDeclared){
+      return { pass:true, count:n, label:'△ 능동 ' + n + '개 — 하한 미달이지만 ⚠️[하한미달]로 사유를 신고함 (정직)' };
+    }
+    return { pass:false, count:n, label:'✗ 능동 ' + n + '개 — 하한 ' + FLOOR_MIN + '개 미달인데 ⚠️[하한미달] 신고 없음 (드리프트 의심)' };
+  }
+  var ELABORATION_WORDS = ['적용해','적용하여','적용한','분석한','분석해','고려하여','고려한','검토한','검토해','살펴본','살펴봐','활용하여','활용해','왜냐하면','이유는','근거는','구체적으로','예를 들어','통해서','통해'];
+  function checkVocabOnly(text){
+    var termHits = [];
+    VOCAB_TERMS.forEach(function(t){
+      if(text.indexOf(t) !== -1) termHits.push(t);
+    });
+    var elabCount = 0;
+    ELABORATION_WORDS.forEach(function(w){
+      var re = new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'g');
+      var m = text.match(re);
+      if(m) elabCount += m.length;
+    });
+    var suspicious = termHits.length >= 2 && elabCount === 0;
+    return {
+      name:'용어만 나열, 구체적 적용 설명 없음',
+      pass: !suspicious,
+      desc:'"만안엔진", "9요소", "반복법" 같은 용어를 언급만 하고, 각 요소를 실제로 어떻게 적용했는지에 대한 설명(적용/분석/고려/검토 등)이 없으면 용어만 갖다 붙였을 가능성이 있습니다.',
+      evidence:'언급된 용어(' + termHits.length + '개): ' + (termHits.join(', ') || '없음') +
+                ' / 적용 설명 어구 매칭: ' + elabCount + '회'
+    };
+  }
+
+  // ==================================================================
+  // 휴리스틱 3-1 (2026-08-16 신설): 능동 4개 하한선 미달을 신고 없이 넘어감
+  // — 드리프트는 "규칙을 어겼다"가 아니라 "조용히 적게 하고 넘어간다"로 시작한다.
+  //   그래서 미달 자체보다 "미달인데 신고를 안 한 것"을 잡는다.
+  // ==================================================================
+  function checkActiveFloor(tagInfo){
+    if(!tagInfo || !tagInfo.present || tagInfo.formatVersion !== 'v2' || !tagInfo.values){
+      return {
+        name:'능동 4개 하한선 준수',
+        pass:true,
+        desc:'신형(v2) [거증] 태그가 있어야 판정할 수 있는 항목입니다.',
+        evidence:'v2 태그 없음 — 이 항목은 판정에서 제외했습니다.'
+      };
+    }
+    var r = evalActiveFloor(tagInfo.values.elementsApplied, tagInfo.values.floorDeclared);
+    return {
+      name:'능동 4개 하한선 준수',
+      pass: r.pass,
+      desc:'능동 7개(①~⑥+⑨) 중 최소 4개는 하한선입니다. "전부 작동할 필요 없음"은 상한을 푼 것이지 하한을 푼 것이 아닙니다. 4개 미만으로 답할 때는 ⚠️[하한미달]로 사유를 밝혀야 하며, 밝히지 않고 조용히 넘어가면 드리프트(이완) 신호로 봅니다. ⑦전개도·⑧청사진은 패시브라 이 카운트에서 제외합니다.',
+      evidence: r.label + (r.count !== null ? ' / 적용 필드 원문: "' + (tagInfo.values.elementsApplied || '') + '"' : '')
+    };
+  }
+
+  // ==================================================================
+  // 휴리스틱 3: 자기 반박/모순 신호
+  // ==================================================================
+  var COMPLETION_RE = /(완료했습니다|다\s*했습니다|모두\s*확인했습니다|끝났습니다|해결했습니다|적용했습니다|다\s*마쳤습니다)/g;
+  var UNCERTAINTY_RE = /(확실하지\s*않|잘\s*모르겠|추측(?:입니다|이지만|중)?|아마도|정확히는\s*모르|확인은\s*못|모를\s*수도|장담(?:은)?\s*못)/g;
+  function checkContradiction(text){
+    var comp = text.match(COMPLETION_RE) || [];
+    var unc = text.match(UNCERTAINTY_RE) || [];
+    var suspicious = comp.length > 0 && unc.length > 0;
+    var evidence = '완료 단정 표현 ' + comp.length + '회(' + (comp.slice(0,3).join(', ') || '없음') + ')' +
+                    ' + 불확실 표현 ' + unc.length + '회(' + (unc.slice(0,3).join(', ') || '없음') + ')' +
+                    (suspicious ? ' — 같은 응답 안에 공존' : '');
+    return {
+      name:'자기 반박/모순 신호',
+      pass: !suspicious,
+      desc:'앞부분에서는 "완료했습니다"라고 단정하고 뒷부분에서 "확실하지 않다"는 식으로 스스로 모순되면, 실제로는 검증하지 않고 결론부터 말했을 가능성이 있습니다.',
+      evidence: evidence
+    };
+  }
+
+  // ==================================================================
+  // 휴리스틱 4 (신규): 도서관(청사진) 과거 오탐/거짓 사례와의 유사도
+  // — 정규식/문자열 기반 자카드(Jaccard) 유사도. 복잡한 ML 불필요.
+  //   단어 토큰(2자 이상) 집합 + 문자 2-gram 집합을 함께 비교해
+  //   조사가 많은 한국어 특성상 단어 경계만으로 놓치는 유사성도 잡아낸다.
+  // ==================================================================
+  var SIMILARITY_THRESHOLD = 0.16; // 16% 이상 겹치면 경고
+
+  function wordTokens(text){
+    return (text || '')
+      .replace(/\[거증\][^\n]*/g,' ')
+      .replace(/\[거반\][^\n]*/g,' ')
+      .replace(/[\[\]★%():#\-_/\\.,!?"'`~^*+=|<>{}\n\r\t]/g,' ')
+      .split(/\s+/)
+      .map(function(w){ return w.trim(); })
+      .filter(function(w){ return w.length >= 2; });
+  }
+  function charBigrams(text){
+    var stripped = (text || '').replace(/\s+/g,'');
+    var grams = [];
+    for(var i=0;i<stripped.length-1;i++){ grams.push(stripped.slice(i,i+2)); }
+    return grams;
+  }
+  function jaccard(aTokens, bTokens){
+    if(!aTokens.length || !bTokens.length) return 0;
+    var setA = {}; aTokens.forEach(function(t){ setA[t]=true; });
+    var setB = {}; bTokens.forEach(function(t){ setB[t]=true; });
+    var keysA = Object.keys(setA), keysB = Object.keys(setB);
+    var union = {};
+    keysA.forEach(function(k){ union[k]=true; });
+    keysB.forEach(function(k){ union[k]=true; });
+    var unionCount = Object.keys(union).length;
+    if(unionCount === 0) return 0;
+    var interCount = 0;
+    keysA.forEach(function(k){ if(setB[k]) interCount++; });
+    return interCount / unionCount;
+  }
+  function textSimilarity(a, b){
+    var wordSim = jaccard(wordTokens(a), wordTokens(b));
+    var bigramSim = jaccard(charBigrams(a), charBigrams(b));
+    // 두 방식의 평균을 최종 유사도로 사용(단어 기반은 어휘 재사용을,
+    // 2-gram 기반은 표현/문장구조 재사용을 각각 더 민감하게 잡아낸다).
+    return (wordSim + bigramSim) / 2;
+  }
+
+  function checkLibrarySimilarity(bodyText){
+    return DataManager.getAll('library_cases').then(function(cases){
+      if(!cases.length) return null;
+      var best = null;
+      cases.forEach(function(c){
+        var sim = textSimilarity(bodyText, c.bodyText || c.originalText || '');
+        if(!best || sim > best.sim){ best = { sim: sim, item: c }; }
+      });
+      if(best && best.sim >= SIMILARITY_THRESHOLD) return best;
+      return null;
+    })["catch"](function(){ return null; });
+  }
+
+  // ==================================================================
+  // AI현황판 자동 연동 (v5 신규)
+  // — [거증] 태그의 AI: 필드에서 추출된 이름을 AI현황판(ai_status 방)의
+  //   기존 카드와 대소문자/공백 무시 + 부분 문자열 매칭으로 찾아, 있으면
+  //   "찾음 → 업데이트", 없으면 "새로 추가" 버튼을 보여준다.
+  // ==================================================================
+  function normalizeAiName(name){
+    return (name || '').toLowerCase().replace(/\s+/g,'').replace(/[\-_.]/g,'');
+  }
+  function findMatchingAiStatus(aiName, list){
+    var norm = normalizeAiName(aiName);
+    if(!norm) return null;
+    var best = null;
+    list.forEach(function(it){
+      var itNorm = normalizeAiName(it.name);
+      if(!itNorm) return;
+      if(itNorm === norm || itNorm.indexOf(norm) !== -1 || norm.indexOf(itNorm) !== -1){
+        // 완전 일치를 부분 일치보다 우선한다.
+        if(!best || itNorm === norm) best = it;
+      }
+    });
+    return best;
+  }
+  // 정직성 체커의 종합판정 레벨을 AI현황판 상태값으로 매핑.
+  function verdictLevelToStatus(level){
+    if(level === 'missing') return '거증 미작동';
+    if(level === 'suspicious') return '의심됨';
+    if(level === 'ok') return '정상작동확인됨';
+    return '미적용';
+  }
+  function verdictSummaryLine(level, tagInfo){
+    var label = level === 'missing' ? '거증 미작동' : level === 'suspicious' ? '의심스러움' : '정상 작동으로 보임';
+    return '정직성체커 자동판정: ' + label + ' (' + nowStamp() + ')';
+  }
+
+  function renderAiBoardLink(tagInfo, level){
+    var box = $('aiBoardLink');
+    if(!box) return;
+    box.innerHTML = '';
+    if(!tagInfo || !tagInfo.wellFormed || !tagInfo.values || !tagInfo.values.aiName) return;
+    var aiName = tagInfo.values.aiName;
+
+    DataManager.getAll('ai_status').then(function(list){
+      // 그 사이 다른 텍스트가 분석됐으면 낡은 결과이므로 무시.
+      if(!currentAnalysis || currentAnalysis.tagInfo !== tagInfo) return;
+      box.innerHTML = '';
+      var match = findMatchingAiStatus(aiName, list);
+      var msg = el('span','abMsg','업데이트됨!');
+      msg.id = 'aiBoardLinkMsg';
+      if(match){
+        var btn = el('button','btn small ghost', "📋 현황판에서 '" + match.name + "' 찾음 — 이 판정으로 상태 업데이트하기");
+        btn.type = 'button';
+        btn.addEventListener('click', function(){
+          var status = verdictLevelToStatus(level);
+          DataManager.update('ai_status', match.id, {
+            status: status,
+            date: todayStr(),
+            note: verdictSummaryLine(level, tagInfo)
+          }).then(function(){
+            msg.classList.add('show');
+            setTimeout(function(){ msg.classList.remove('show'); }, 1800);
+            renderBoard();
+          });
+        });
+        box.appendChild(btn);
+        box.appendChild(msg);
+      } else {
+        var addBtn = el('button','btn small ghost', "📋 현황판에 '" + aiName + "' 새로 추가하기");
+        addBtn.type = 'button';
+        addBtn.addEventListener('click', function(){
+          var status = verdictLevelToStatus(level);
+          var newItem = {
+            id: 'ai-' + Date.now() + '-' + Math.floor(Math.random()*10000),
+            name: aiName,
+            status: status,
+            date: todayStr(),
+            note: verdictSummaryLine(level, tagInfo)
+          };
+          DataManager.add('ai_status', newItem).then(function(){
+            msg.textContent = '추가됨!';
+            msg.classList.add('show');
+            setTimeout(function(){ msg.classList.remove('show'); }, 1800);
+            renderBoard();
+          });
+        });
+        box.appendChild(addBtn);
+        box.appendChild(msg);
+      }
+    })["catch"](function(){ /* 조회 실패 시 조용히 링크 박스 비움 */ });
+  }
+
+  // ==================================================================
+  // 렌더링 (체커)
+  // ==================================================================
+  function renderTagResult(tagInfo){
+    var box = $('tagResult');
+    box.innerHTML = '';
+    if(!tagInfo.present){
+      var warnBox = el('div','verdictBanner missing');
+      warnBox.appendChild(el('p','verdictTitle','🚨 거증 미작동 — [거증] 태그가 없습니다'));
+      warnBox.appendChild(el('p','verdictDesc','붙여넣은 텍스트 전체에서 "[거증]" 문자열 자체를 찾지 못했습니다. 프로토콜에 따르면 이 줄이 없으면 곧바로 "거증 미작동"으로 간주합니다.'));
+      box.appendChild(warnBox);
+      return;
+    }
+    if(!tagInfo.wellFormed){
+      var badBox = el('div','verdictBanner suspicious');
+      badBox.appendChild(el('p','verdictTitle','⚠ [거증] 태그는 있으나 형식이 올바르지 않음'));
+      var d = el('p','verdictDesc','"[검증]확인함/추측함 · [반복법]N회 · [9요소]적용/미적용" (신형) 또는 "9요소:★N개 / 도자기:N회 / 자제력:X%" (구형) 형식을 정확히 찾지 못했습니다. 발견된 주변 텍스트:');
+      badBox.appendChild(d);
+      var ev = el('div','checkEvidence', tagInfo.rawSnippet || '(추출 실패)');
+      badBox.appendChild(ev);
+      box.appendChild(badBox);
+      return;
+    }
+    var okBox = el('div','verdictBanner ok');
+    okBox.appendChild(el('p','verdictTitle','✓ [거증] 태그 발견 및 파싱 성공'));
+    if(!tagInfo.firstLine){
+      okBox.appendChild(el('p','verdictDesc','단, 답변의 맨 첫 줄이 아닌 위치에서 발견되었습니다 — 프로토콜은 "첫 줄"을 요구합니다.'));
+    }
+    var vals = el('div','tagValues');
+    var v0 = el('div','tagVal','감지된 AI');
+    v0.appendChild(el('b',null, tagInfo.values.aiName ? tagInfo.values.aiName : 'AI 이름 미기재'));
+    vals.appendChild(v0);
+
+    if(tagInfo.formatVersion === 'v2'){
+      var vConf = el('div','tagVal','확인함');
+      vConf.appendChild(el('b',null, tagInfo.values.confirmed || '(명시 안 됨)'));
+      var vGuess = el('div','tagVal','추측함');
+      vGuess.appendChild(el('b',null, tagInfo.values.guessed || '(명시 안 됨)'));
+      var vPot = el('div','tagVal','반복법');
+      vPot.appendChild(el('b',null, tagInfo.values.pottery || '(명시 안 됨)'));
+      var vEl = el('div','tagVal','9요소 적용/미적용');
+      vEl.appendChild(el('b',null, (tagInfo.values.elementsApplied || '?') + ' / ' + (tagInfo.values.elementsNotApplied || '?')));
+      vals.appendChild(vConf); vals.appendChild(vGuess); vals.appendChild(vPot); vals.appendChild(vEl);
+      // 2026-08-16 신설: 확장 6감각 필드 표시 — 상시 강제 항목이 아니므로,
+      // 없다고 위반은 아니고 "미기재"로만 표시한다.
+      var vExt = el('div','tagVal','확장6요소 적용');
+      vExt.appendChild(el('b',null, tagInfo.values.extApplied
+        ? (tagInfo.values.extApplied + (tagInfo.values.extNotApplied ? ' / 미적용: ' + tagInfo.values.extNotApplied : ''))
+        : '(미기재 — 상시 강제 아님)'));
+      vals.appendChild(vExt);
+      // 능동 4개 하한선 판정 — 오늘(08-16) 패치로 신설된 규칙.
+      var floor = evalActiveFloor(tagInfo.values.elementsApplied, tagInfo.values.floorDeclared);
+      var vFloor = el('div','tagVal','능동 4개 하한선');
+      vFloor.appendChild(el('b',null, floor.label));
+      vals.appendChild(vFloor);
+    } else {
+      var v1 = el('div','tagVal','9요소 개수');
+      v1.appendChild(el('b',null, '★' + tagInfo.values.elements + '개'));
+      var v2 = el('div','tagVal','도자기 반복');
+      v2.appendChild(el('b',null, tagInfo.values.pottery + '회'));
+      var v3 = el('div','tagVal','자제력');
+      v3.appendChild(el('b',null, tagInfo.values.selfControl + '%'));
+      vals.appendChild(v1); vals.appendChild(v2); vals.appendChild(v3);
+      var vOldNote = el('div','tagVal','⚠ 형식');
+      vOldNote.appendChild(el('b',null, '구형(정도값) — 신형(확인함/추측함) 권장'));
+      vals.appendChild(vOldNote);
+    }
+    okBox.appendChild(vals);
+    box.appendChild(okBox);
+    var linkBox = el('div','aiBoardLink');
+    linkBox.id = 'aiBoardLink';
+    box.appendChild(linkBox);
+  }
+
+  function renderChecklist(checks){
+    var box = $('checklist');
+    box.innerHTML = '';
+    checks.forEach(function(c){
+      var item = el('div','checkItem');
+      var head = el('div','checkHead');
+      var badge = el('span','checkBadge ' + (c.pass ? 'pass' : 'warn'), c.pass ? '통과' : '의심');
+      head.appendChild(badge);
+      head.appendChild(el('span','checkName', c.name));
+      item.appendChild(head);
+      item.appendChild(el('div','checkDesc', c.desc));
+      item.appendChild(el('div','checkEvidence', c.evidence));
+      box.appendChild(item);
+    });
+  }
+
+  function renderVerdict(tagInfo, checks){
+    var banner = $('verdictBanner');
+    var suspiciousCount = checks.filter(function(c){ return !c.pass; }).length;
+    var level, title, desc;
+
+    if(!tagInfo.present){
+      level = 'missing';
+      title = '🚨 거증 미작동 확실';
+      desc = '[거증] 태그 자체가 없어 자기보고가 이루어지지 않았습니다. 이 AI가 실제로 만안엔진+반복법을 사용했는지 전혀 확인할 수 없는 상태입니다.';
+    } else if(!tagInfo.wellFormed || suspiciousCount > 0){
+      level = 'suspicious';
+      var reasons = [];
+      if(tagInfo.present && !tagInfo.wellFormed) reasons.push('[거증] 형식 오류');
+      if(suspiciousCount > 0) reasons.push('의심 신호 ' + suspiciousCount + '개');
+      title = '⚠ 의심스러움';
+      desc = '(' + reasons.join(', ') + ') — [거증] 태그는 있지만 내용이 실제 사용을 증명하기엔 부족해 보입니다. 재확인을 권장합니다.';
+    } else {
+      level = 'ok';
+      title = '✓ 정상 작동으로 보임';
+      desc = '[거증] 태그가 올바른 형식으로 존재하고, 휴리스틱 체크에서 의심 신호가 발견되지 않았습니다. (단, 이 도구는 100% 확정 판별기가 아닙니다.)';
+    }
+
+    banner.className = 'verdictBanner ' + level;
+    banner.innerHTML = '';
+    banner.appendChild(el('p','verdictTitle', title));
+    banner.appendChild(el('p','verdictDesc', desc));
+
+    return level;
+  }
+
+  function renderLibraryWarning(match){
+    var box = $('librarySimilarityWarning');
+    box.innerHTML = '';
+    if(!match) return;
+    var pct = Math.round(match.sim * 100);
+    var w = el('div','libWarnBox');
+    w.appendChild(el('p','lwTitle','⚠ 과거 오탐/거짓 사례와 유사함 (유사도 ' + pct + '%)'));
+    w.appendChild(el('p','lwDesc','도서관에 저장된 과거 사례 중 지금 붙여넣은 텍스트와 표현/어휘가 겹치는 사례가 있습니다. 같은 패턴의 거짓 자기보고일 가능성을 염두에 두고 다시 확인해보세요.'));
+    var preview = (match.item.originalText || match.item.bodyText || '').slice(0,160);
+    w.appendChild(el('div','lwPreview', preview + ((match.item.originalText||'').length > 160 ? ' …' : '')));
+    box.appendChild(w);
+  }
+
+  function renderCorrection(level){
+    var panel = $('correctionPanel');
+    if(level === 'ok'){
+      panel.style.display = 'none';
+      return;
+    }
+    panel.style.display = '';
+    $('promptWeak').value = PROMPT_WEAK;
+    $('promptStrong').value = buildStrongPrompt();
+  }
+
+  function copyText(textareaId, msgId){
+    var ta = $(textareaId);
+    var msg = $(msgId);
+    var text = ta.value;
+    function shown(){
+      msg.classList.add('show');
+      setTimeout(function(){ msg.classList.remove('show'); }, 1600);
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(shown, function(){ fallbackCopy(ta, shown); });
+    } else {
+      fallbackCopy(ta, shown);
+    }
+  }
+  function fallbackCopy(ta, cb){
+    try{
+      ta.removeAttribute('readonly');
+      ta.focus(); ta.select();
+      document.execCommand('copy');
+      ta.setAttribute('readonly','readonly');
+      cb();
+    }catch(e){ /* 조용히 무시 */ }
+  }
+
+  // ==================================================================
+  // 메인 분석 함수 — 현재 분석 상태를 전역에 보관해 "거짓말로 표시" 버튼과
+  // 도서관 유사도 체크(비동기 IndexedDB 조회)에서 재사용한다.
+  // ==================================================================
+  var currentAnalysis = null; // { fullText, bodyText, tagInfo, level }
+
+  function analyze(){
+    var text = $('inputArea').value;
+    if(!text || !text.trim()){
+      $('resultsSection').style.display = 'none';
+      $('statusHint').textContent = '대기 중 — 텍스트를 붙여넣으세요.';
+      currentAnalysis = null;
+      return;
+    }
+    var tagInfo = parseGeojeung(text);
+    // 도자기반복법 재검토(2회차)로 발견한 문제: [거증]/[거반] 태그 줄 자체에
+    // "9요소", "자제력" 같은 어휘가 형식상 반드시 포함되기 때문에, 태그를
+    // 정확한 형식으로 정직하게 작성한 정상 응답조차 "용어만 나열" 휴리스틱이
+    // 태그 줄을 본문처럼 잘못 세어 항상 의심으로 오탐(false positive)하는
+    // 결함이 있었다. 휴리스틱은 태그 줄을 제외한 "본문"에 대해서만 실행한다.
+    var bodyText = text.split('\n').filter(function(line){
+      return line.indexOf('[거증]') === -1 && line.indexOf('[거반]') === -1 &&
+             line.indexOf('[검증]') === -1 && line.indexOf('[반복법]') === -1 && line.indexOf('[도자기]') === -1 && line.indexOf('[9요소]') === -1;
+    }).join('\n');
+    var checks = [
+      checkFloweryVsConcrete(bodyText),
+      checkVocabOnly(bodyText),
+      checkContradiction(bodyText),
+      checkActiveFloor(tagInfo)   // 2026-08-16 신설: 능동 4개 하한선
+    ];
+    renderTagResult(tagInfo);
+    renderChecklist(checks);
+    var level = renderVerdict(tagInfo, checks);
+    renderCorrection(level);
+    renderLibraryWarning(null); // 먼저 지우고, 비동기 조회 결과가 오면 다시 채운다.
+    $('resultsSection').style.display = '';
+    $('statusHint').textContent = '분석 완료 (' + new Date().toLocaleTimeString('ko-KR') + ')';
+
+    currentAnalysis = { fullText:text, bodyText:bodyText, tagInfo:tagInfo, level:level };
+    var analysisToken = currentAnalysis;
+
+    renderAiBoardLink(tagInfo, level);
+
+    // 도서관(청사진)의 과거 사례와 교차 비교 — 관리자가 모든 방의 데이터에
+    // 접근 가능하기 때문에 가능한 "만안엔진 지능"에 해당하는 기능.
+    checkLibrarySimilarity(bodyText).then(function(match){
+      // 그 사이 사용자가 새 텍스트를 다시 분석했으면 낡은 결과이므로 무시.
+      if(currentAnalysis !== analysisToken) return;
+      renderLibraryWarning(match);
+    });
+  }
+
+  function markAsFalse(){
+    if(!currentAnalysis){ return; }
+    var aiName = (currentAnalysis.tagInfo.values && currentAnalysis.tagInfo.values.aiName) || null;
+    var item = {
+      originalText: currentAnalysis.fullText.slice(0, 4000),
+      bodyText: currentAnalysis.bodyText.slice(0, 4000),
+      verdictLevel: currentAnalysis.level,
+      tagPresent: currentAnalysis.tagInfo.present,
+      aiName: aiName,
+      markedAt: nowStamp()
+    };
+    DataManager.add('library_cases', item).then(function(){
+      var msg = $('markMsg');
+      msg.classList.add('show');
+      setTimeout(function(){ msg.classList.remove('show'); }, 1800);
+      renderLibrary();
+    })["catch"](function(err){
+      alert('도서관 저장 중 오류가 발생했습니다: ' + (err && err.message ? err.message : err));
+    });
+  }
+
+  // ==================================================================
+  // 이벤트 바인딩 (체커)
+  // ==================================================================
+  $('analyzeBtn').addEventListener('click', analyze);
+  $('clearBtn').addEventListener('click', function(){
+    $('inputArea').value = '';
+    $('resultsSection').style.display = 'none';
+    $('statusHint').textContent = '대기 중 — 텍스트를 붙여넣으세요.';
+    currentAnalysis = null;
+  });
+  $('inputArea').addEventListener('paste', function(){
+    // 붙여넣기 이벤트 시점엔 아직 값이 반영되기 전이므로 약간의 지연 후 분석.
+    setTimeout(analyze, 30);
+  });
+  $('copyWeakBtn').addEventListener('click', function(){ copyText('promptWeak','copyMsgWeak'); });
+  $('copyStrongBtn').addEventListener('click', function(){ copyText('promptStrong','copyMsgStrong'); });
+  $('markFalseBtn').addEventListener('click', markAsFalse);
+
+  // ==================================================================
+  // 북마클릿 (v6 신규)
+  // — 다른 AI 사이트에서 선택한 텍스트(없으면 페이지 전체)를 로컬서버
+  //   (localhost:8900)의 POST /receive 로 전송한다. 서버가 켜져있지 않으면
+  //   fetch가 실패하므로 사용자에게 알려준다(로컬서버 실행기 먼저 켜라는 안내).
+  // — 포트는 launcher(.bat)/커스텀 서버 스크립트와 반드시 동일해야 하므로
+  //   BOOKMARKLET_PORT 상수 하나로 관리한다.
+  // ==================================================================
+  var BOOKMARKLET_PORT = 8900;
+  function buildBookmarkletSource(port){
+    // 실제로 브라우저 즐겨찾기에 저장되어 실행될 코드. 압축/난독화 없이
+    // 그대로 읽을 수 있게 작성(투명성 — 사용자가 나중에 코드를 열어봐도
+    // 무엇을 하는지 바로 이해 가능해야 함).
+    return "(function(){" +
+      "var t = (window.getSelection && window.getSelection().toString()) || '';" +
+      "if(!t || !t.trim()){ t = document.body ? document.body.innerText : ''; }" +
+      "if(!t || !t.trim()){ alert('보낼 텍스트를 찾지 못했습니다.'); return; }" +
+      "fetch('http://localhost:" + port + "/receive', {" +
+        "method:'POST'," +
+        "headers:{'Content-Type':'application/json'}," +
+        "body: JSON.stringify({ text: t, url: location.href })" +
+      "}).then(function(r){" +
+        "if(!r.ok) throw new Error('server-error');" +
+        "var b = document.createElement('div');" +
+        "b.textContent = '[M.E.E] 정직성체커로 전송됨!';" +
+        "b.style.cssText = 'position:fixed;top:20px;right:20px;z-index:2147483647;" +
+          "background:#5ee7ff;color:#07080d;padding:12px 20px;border-radius:10px;" +
+          "font-weight:800;font-family:sans-serif;font-size:14px;" +
+          "box-shadow:0 6px 24px rgba(0,0,0,.35);';" +
+        "document.body.appendChild(b);" +
+        "setTimeout(function(){ b.remove(); }, 3000);" +
+      "})[\"catch\"](function(){" +
+        "alert('전송 실패! 정직성체커 로컬서버(localhost:" + port + ")가 " +
+          "켜져있는지 확인하세요.\\n" +
+          "([M.E.E] 정직성체커_실행.bat 를 먼저 실행하세요)');" +
+      "});" +
+    "})();";
+  }
+  function initBookmarklet(){
+    var link = $('bookmarkletLink');
+    if(!link) return;
+    link.setAttribute('href', 'javascript:' + encodeURIComponent(buildBookmarkletSource(BOOKMARKLET_PORT)));
+  }
+  initBookmarklet();
+
+  // ==================================================================
+  // 로컬서버 폴링 (v6 신규) — 북마클릿이 보낸 텍스트를 자동으로 받아온다.
+  // — GET /_incoming.json 을 2초 간격으로 조회한다. 커스텀 서버(_checker_server.py)가
+  //   POST /receive 를 받을 때만 이 파일이 존재하므로, 없으면(404) 조용히 무시한다.
+  // — file:// 로 직접 연 경우 애초에 fetch가 실패하거나 무의미하므로, 이 기능은
+  //   철저히 "있으면 좋은" 향상 기능일 뿐 기존 수동 붙여넣기 기능에는 전혀
+  //   영향을 주지 않는다(실패해도 catch로 조용히 삼킴).
+  // ==================================================================
+  var pollingBusy = false;
+  function pollIncomingSafe(){
+    if(pollingBusy) return;
+    if(location.protocol !== 'http:' && location.protocol !== 'https:') return;
+    pollingBusy = true;
+    fetch('_incoming.json', { cache:'no-store' }).then(function(r){
+      if(!r.ok){ pollingBusy = false; return null; }
+      return r.json()["catch"](function(){ return null; });
+    }).then(function(data){
+      if(!data || !data.text || !data.text.trim()){ pollingBusy = false; return; }
+      var btnChecker = $('tabBtnChecker');
+      if(btnChecker) btnChecker.click();
+      $('inputArea').value = data.text;
+      analyze();
+      showBookmarkletToast('📥 북마클릿으로 받은 텍스트를 자동 분석했습니다!');
+      fetch('consume', { method:'POST' }).then(function(){ pollingBusy = false; }, function(){ pollingBusy = false; });
+    }, function(){ pollingBusy = false; });
+  }
+  function showBookmarkletToast(msg){
+    var t = $('bmPollToast');
+    if(!t){
+      t = el('div','bmToast');
+      t.id = 'bmPollToast';
+      document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 3000);
+  }
+  if(typeof window !== 'undefined' && (location.protocol === 'http:' || location.protocol === 'https:')){
+    setInterval(pollIncomingSafe, 2000);
+    pollIncomingSafe();
+  }
+
+  // ==================================================================
+  // 타사 AI 현황판 — 이제 DataManager('ai_status' 방)를 통해서만 CRUD.
+  // ==================================================================
+
+  // 상태값별 메타(표시 라벨/뱃지 색상). 요청된 5종 + 실제 세션 데이터 반영을 위한
+  // "완전제외(코딩만)" 변형 1종 = 총 6개 선택지.
+  var STATUS_META = {
+    '거반+거증 적용됨':      { color:'#7cf29a' }, // 초록
+    '정상작동확인됨':        { color:'#5ee7ff' }, // 파랑
+    '의심됨':                { color:'#ffd35c' }, // 노랑
+    '거증 미작동':            { color:'#ff6a6a' }, // 빨강(경고 전용, v5 신규 — 정직성체커 자동판정에서 [거증] 태그 자체가 없을 때 매핑)
+    '미적용':                { color:'#9aa3b5' }, // 회색
+    '완전제외':              { color:'#ff5a5a' }, // 빨강
+    '완전제외(코딩만)':      { color:'#ff7a5c' }  // 빨강(주황 변형)
+  };
+  var STATUS_ORDER = ['거반+거증 적용됨','정상작동확인됨','의심됨','거증 미작동','미적용','완전제외','완전제외(코딩만)'];
+
+  function defaultBoardData(){
+    var t = todayStr();
+    return [
+      { id:'seed-1', name:'Gemini 무료',            status:'완전제외',         date:t, note:'코딩 영구 제외, 여러 차례 재시도해도 프로토콜 미흡수' },
+      { id:'seed-2', name:'Gemini 유료',            status:'완전제외(코딩만)', date:t, note:'코딩은 완전제외(정직성 위반+실행력 붕괴 확인됨), 창작/이미지는 별도 허용' },
+      { id:'seed-3', name:'GLM 5.2',                status:'정상작동확인됨',   date:t, note:'피드백 반영 우수, [거증] 첫줄 출력 확인됨' },
+      { id:'seed-4', name:'DeepSeek V4 Pro',        status:'의심됨',           date:t, note:'선언과 실제 불일치 다수 적발됨, 창시자원칙 적용 후 재테스트 중' },
+      { id:'seed-5', name:'Perplexity',             status:'정상작동확인됨',   date:t, note:'유도질문 없이 자발적 정직 자백, 30일 트라이얼 중' },
+      { id:'seed-6', name:'GenSpark(ChatGPT Luna)', status:'의심됨',           date:t, note:'Verdent 경유 시 40% 일반사고 자백 이력 있음' },
+      { id:'seed-7', name:'Kimi K2.7',              status:'정상작동확인됨',   date:t, note:'차량 디자인 차별화 등 첫인상 긍정적' },
+      { id:'seed-8', name:'Qwen3.7-Plus',           status:'완전제외',         date:t, note:'프로토콜 이해 실패' }
+    ];
+  }
+
+  function ensureBoardSeed(){
+    return DataManager.getAll('ai_status').then(function(all){
+      if(all.length === 0){
+        var seeds = defaultBoardData();
+        return Promise.all(seeds.map(function(it){ return DataManager.put('ai_status', it); }));
+      }
+      return null;
+    });
+  }
+
+  var boardFilter = '전체';
+
+  function addAiItem(){
+    var newItem = {
+      id: 'ai-' + Date.now() + '-' + Math.floor(Math.random()*10000),
+      name: '새 AI',
+      status: '미적용',
+      date: todayStr(),
+      note: ''
+    };
+    return DataManager.add('ai_status', newItem).then(function(){
+      boardFilter = '전체';
+      renderBoard();
+      return newItem;
+    });
+  }
+
+  function updateAiItem(id, field, value){
+    var patch = {};
+    patch[field] = value;
+    return DataManager.update('ai_status', id, patch);
+  }
+
+  function deleteAiItem(id){
+    return DataManager.remove('ai_status', id).then(function(){ renderBoard(); });
+  }
+
+  function buildFilterRow(data){
+    var row = $('filterRow');
+    row.innerHTML = '';
+    var counts = { '전체': data.length };
+    STATUS_ORDER.forEach(function(s){ counts[s] = 0; });
+    data.forEach(function(it){
+      if(counts.hasOwnProperty(it.status)) counts[it.status]++;
+    });
+
+    function makeBtn(label, color){
+      var b = el('button','filterBtn' + (boardFilter === label ? ' active' : ''));
+      b.type = 'button';
+      if(color){
+        var dot = el('span','filterDot');
+        dot.style.background = color;
+        dot.style.color = color;
+        b.appendChild(dot);
+      }
+      b.appendChild(document.createTextNode(label + ' (' + counts[label] + ')'));
+      b.addEventListener('click', function(){
+        boardFilter = label;
+        renderBoard();
+      });
+      return b;
+    }
+
+    row.appendChild(makeBtn('전체', null));
+    STATUS_ORDER.forEach(function(s){
+      row.appendChild(makeBtn(s, STATUS_META[s].color));
+    });
+  }
+
+  function buildCard(item){
+    var meta = STATUS_META[item.status] || { color:'#9aa3b5' };
+    var card = el('div','aiCard');
+    card.style.borderLeftColor = meta.color;
+
+    var top = el('div','aiCardTop');
+    var nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.className = 'aiName';
+    nameInput.value = item.name;
+    nameInput.setAttribute('aria-label','AI/플랫폼 이름');
+    nameInput.addEventListener('change', function(){
+      updateAiItem(item.id, 'name', nameInput.value);
+    });
+    top.appendChild(nameInput);
+
+    var dot = el('span','statusDot');
+    dot.style.background = meta.color;
+    dot.style.color = meta.color;
+    top.appendChild(dot);
+
+    var statusSelect = document.createElement('select');
+    statusSelect.className = 'aiStatus';
+    statusSelect.setAttribute('aria-label','상태');
+    STATUS_ORDER.forEach(function(s){
+      var opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      if(s === item.status) opt.selected = true;
+      statusSelect.appendChild(opt);
+    });
+    statusSelect.addEventListener('change', function(){
+      updateAiItem(item.id, 'status', statusSelect.value).then(function(){ renderBoard(); });
+    });
+    top.appendChild(statusSelect);
+
+    card.appendChild(top);
+
+    var bottom = el('div','aiCardBottom');
+    var dateInput = document.createElement('input');
+    dateInput.type = 'date';
+    dateInput.className = 'aiDate';
+    dateInput.value = item.date || todayStr();
+    dateInput.setAttribute('aria-label','마지막 확인 날짜');
+    dateInput.addEventListener('change', function(){
+      updateAiItem(item.id, 'date', dateInput.value);
+    });
+    bottom.appendChild(dateInput);
+
+    var noteInput = document.createElement('input');
+    noteInput.type = 'text';
+    noteInput.className = 'aiNote';
+    noteInput.placeholder = '메모 (한 줄)';
+    noteInput.value = item.note || '';
+    noteInput.setAttribute('aria-label','메모');
+    noteInput.addEventListener('change', function(){
+      updateAiItem(item.id, 'note', noteInput.value);
+    });
+    bottom.appendChild(noteInput);
+
+    var delBtn = el('button','btn small danger delBtn','🗑');
+    delBtn.type = 'button';
+    delBtn.setAttribute('aria-label','삭제');
+    delBtn.addEventListener('click', function(){
+      deleteAiItem(item.id);
+    });
+    bottom.appendChild(delBtn);
+
+    card.appendChild(bottom);
+    return card;
+  }
+
+  function renderBoard(){
+    return DataManager.getAll('ai_status').then(function(data){
+      buildFilterRow(data);
+      var filtered = boardFilter === '전체' ? data : data.filter(function(it){ return it.status === boardFilter; });
+      var list = $('boardList');
+      list.innerHTML = '';
+      var emptyNote = $('boardEmpty');
+      if(!filtered.length){
+        emptyNote.style.display = '';
+      } else {
+        emptyNote.style.display = 'none';
+        filtered.forEach(function(item){
+          list.appendChild(buildCard(item));
+        });
+      }
+    })["catch"](function(err){
+      var list = $('boardList');
+      list.innerHTML = '';
+      list.appendChild(el('p','empty-note','현황판 로딩 오류: ' + (err && err.message ? err.message : err)));
+    });
+  }
+
+  $('addAiBtn').addEventListener('click', function(){ addAiItem(); });
+
+  // ==================================================================
+  // 도서관 (청사진) — library_cases 방
+  // ==================================================================
+  function deleteLibraryItem(id){
+    return DataManager.remove('library_cases', id).then(function(){ renderLibrary(); });
+  }
+
+  function buildLibCard(item){
+    var card = el('div','libCard');
+    var top = el('div','libCardTop');
+    var badgeLabel = item.verdictLevel === 'missing' ? '거증 미작동' :
+                      item.verdictLevel === 'suspicious' ? '의심스러움' :
+                      item.verdictLevel === 'ok' ? '정상으로 보였음(오탐)' : '기록됨';
+    top.appendChild(el('span','libBadge', badgeLabel));
+    if(item.aiName){
+      top.appendChild(el('span','libAiBadge', '🤖 ' + item.aiName));
+    }
+    top.appendChild(el('span','libDate', item.markedAt || ''));
+    card.appendChild(top);
+
+    var preview = (item.originalText || item.bodyText || '').slice(0,220);
+    card.appendChild(el('div','libPreview', preview + ((item.originalText||'').length > 220 ? ' …' : '')));
+
+    var bottom = el('div','libCardBottom');
+    var delBtn = el('button','btn small danger delBtn','🗑 삭제');
+    delBtn.type = 'button';
+    delBtn.addEventListener('click', function(){ deleteLibraryItem(item.id); });
+    bottom.appendChild(delBtn);
+    card.appendChild(bottom);
+
+    return card;
+  }
+
+  function renderLibrary(){
+    return DataManager.getAll('library_cases').then(function(data){
+      data.sort(function(a,b){ return (b.markedAt||'').localeCompare(a.markedAt||''); });
+      var list = $('libList');
+      list.innerHTML = '';
+      $('libCount').textContent = data.length + '건 저장됨';
+      var emptyNote = $('libEmpty');
+      if(!data.length){
+        emptyNote.style.display = '';
+      } else {
+        emptyNote.style.display = 'none';
+        data.forEach(function(item){ list.appendChild(buildLibCard(item)); });
+      }
+    })["catch"](function(err){
+      var list = $('libList');
+      list.innerHTML = '';
+      list.appendChild(el('p','empty-note','도서관 로딩 오류: ' + (err && err.message ? err.message : err)));
+    });
+  }
+
+  $('libExportBtn').addEventListener('click', function(){
+    DataManager.exportJSON('library_cases')["catch"](function(err){
+      alert('내보내기 실패: ' + (err && err.message ? err.message : err));
+    });
+  });
+  $('libImportBtn').addEventListener('click', function(){ $('libImportFile').click(); });
+  $('libImportFile').addEventListener('change', function(e){
+    var file = e.target.files && e.target.files[0];
+    if(!file) return;
+    DataManager.importJSON('library_cases', file).then(function(){
+      renderLibrary();
+      renderBoard();
+      $('libImportFile').value = '';
+    })["catch"](function(err){
+      alert('가져오기 실패: ' + (err && err.message ? err.message : err));
+      $('libImportFile').value = '';
+    });
+  });
+
+  // ==================================================================
+  // 초기화
+  // ==================================================================
+  initTabs();
+
+  var bootPromise = DataManager.init()
+    .then(function(){ return DataManager.migrateFromLocalStorage(); })
+    .then(function(){ return ensureBoardSeed(); })
+    .then(function(){ return renderBoard(); })
+    .then(function(){ return renderLibrary(); })
+    ["catch"](function(err){
+      var list = $('boardList');
+      if(list){
+        list.innerHTML = '';
+        list.appendChild(el('p','empty-note','초기화 오류(IndexedDB 미지원 환경일 수 있습니다): ' + (err && err.message ? err.message : err)));
+      }
+    });
+
+  // Node.js DOM 스텁 하네스 등 window가 없는 환경에서도 예외 없이 로드되도록
+  // 전역 노출은 브라우저 환경에서만 수행.
+  if(typeof window !== 'undefined'){
+    window.__spiderEyeHonestyChecker = {
+      parseGeojeung: parseGeojeung,
+      analyze: analyze,
+      textSimilarity: textSimilarity,
+      DataManager: DataManager,
+      bootPromise: bootPromise,
+      // 현황판 테스트/검증용 노출
+      addAiItem: addAiItem,
+      updateAiItem: updateAiItem,
+      deleteAiItem: deleteAiItem,
+      renderBoard: renderBoard,
+      renderLibrary: renderLibrary,
+      markAsFalse: markAsFalse,
+      defaultBoardData: defaultBoardData,
+      STATUS_META: STATUS_META,
+      STATUS_ORDER: STATUS_ORDER,
+      // v5 신규 — AI현황판 자동 연동 테스트/검증용 노출
+      normalizeAiName: normalizeAiName,
+      findMatchingAiStatus: findMatchingAiStatus,
+      verdictLevelToStatus: verdictLevelToStatus,
+      renderAiBoardLink: renderAiBoardLink
+    };
+  }
+})();
+</script>
+</body>
+</html>

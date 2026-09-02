@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>만안엔진 (Myriad Eye Engine) [M.E.E]</title>
+<style>
+  :root{
+    --bg:#07080d; --bg2:#0c0f1a;
+    --line:rgba(140,170,220,0.18); --line-active:rgba(120,220,255,0.9);
+    --ink:#e8edf5; --ink-dim:#8892a8;
+    --accent:#5ee7ff; --accent2:#c98bff; --warn:#ff8a5c; --ok:#7cf29a; --core:#fff6d8;
+    font-family:'Noto Sans KR','Pretendard',-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --bg:#f4f6fb; --bg2:#e9edf6; --line:rgba(60,80,120,0.18); --ink:#1b2233; --ink-dim:#5b6478; --core:#2a2f3d; }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:radial-gradient(1200px 700px at 50% 0%, var(--bg2), var(--bg) 70%);
+    color:var(--ink); line-height:1.7;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:56px 22px 80px;}
+  a{color:var(--accent);}
+
+  header{text-align:center;margin-bottom:50px;}
+  .eye{font-size:44px;display:block;margin-bottom:10px;}
+  h1{
+    font-size:clamp(24px,5vw,36px); font-weight:800; margin:0 0 10px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    letter-spacing:.01em;
+  }
+  .tagline{font-size:14.5px;color:var(--ink-dim);max-width:600px;margin:0 auto 14px;}
+  .credit{font-size:12.5px;color:var(--ink-dim);}
+  .credit a{color:var(--accent2);text-decoration:none;}
+  .langlink{font-size:12.5px;margin-top:10px;display:inline-block;}
+
+  section{margin-top:52px;}
+  .kicker{font-size:11.5px;font-weight:800;letter-spacing:.05em;color:var(--accent2);margin:0 0 8px;}
+  h2{font-size:21px;font-weight:800;margin:0 0 16px;}
+  p{color:var(--ink-dim);font-size:13.8px;}
+  p.lead{color:var(--ink);font-size:14.8px;}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:20px;}
+  .card{border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;background:rgba(255,255,255,0.02);}
+  .card .num{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(255,138,92,0.14);color:var(--warn);font-size:12px;font-weight:800;margin-bottom:10px;}
+  .card h3{font-size:14px;margin:0 0 8px;}
+  .card p{font-size:12.6px;margin:0;}
+
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;}
+  @media (max-width:640px){.split{grid-template-columns:1fr;}}
+  .panel{border:1px solid var(--line);border-radius:14px;padding:20px;background:rgba(255,255,255,0.02);}
+  .panel .tag{display:inline-block;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px;margin-bottom:10px;}
+  .panel.nav .tag{color:var(--accent);background:rgba(94,231,255,0.14);}
+  .panel.filter .tag{color:var(--accent2);background:rgba(201,139,255,0.14);}
+  .panel h3{font-size:15px;margin:0 0 8px;}
+  .panel p{font-size:12.6px;margin:0;}
+
+  .flow{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:24px;flex-wrap:wrap;font-size:13px;font-weight:700;}
+  .flow .step{border:1px solid var(--line-active);border-radius:999px;padding:8px 18px;color:var(--accent);background:rgba(94,231,255,0.08);}
+  .flow .arrow{color:var(--ink-dim);}
+
+  table{width:100%;border-collapse:collapse;margin-top:18px;font-size:13px;}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);}
+  th{color:var(--ink-dim);font-weight:700;font-size:11.5px;}
+  td.mark{color:var(--accent);font-weight:800;width:34px;}
+  td.mark.passive{color:var(--accent2);}
+  .passive-note{font-size:11.5px;color:var(--ink-dim);margin-top:10px;}
+
+  .floorbox{border:1px dashed rgba(255,138,92,0.55);border-radius:12px;padding:14px 16px;margin-top:20px;background:rgba(255,138,92,0.06);}
+  .floorbox b{color:var(--warn);}
+  .floorbox p{margin:6px 0 0;font-size:12.6px;}
+
+  .cmptable{width:100%;border-collapse:collapse;margin-top:20px;font-size:12.6px;}
+  .cmptable th,.cmptable td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .cmptable th{font-size:11px;color:var(--ink-dim);text-align:left;}
+  .cmptable th.gcol{color:var(--ink-dim);}
+  .cmptable th.mcol{color:var(--accent);}
+  .cmptable td.rowlabel{color:var(--ink-dim);font-weight:700;white-space:nowrap;}
+  .cmptable td.gval{color:var(--ink-dim);}
+  .cmptable td.gval::before{content:"✕ ";color:var(--warn);}
+  .cmptable td.mval{color:var(--ink);}
+  .cmptable td.mval::before{content:"✓ ";color:var(--ok);}
+
+  ol.steps{padding-left:20px;font-size:13.5px;color:var(--ink);}
+  ol.steps li{margin-bottom:10px;}
+  ol.steps code{background:rgba(255,255,255,0.06);padding:2px 6px;border-radius:5px;font-size:12px;}
+
+  .doclist{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+  .docrow{display:flex;justify-content:space-between;align-items:center;gap:12px;border:1px solid var(--line);border-radius:12px;padding:12px 16px;flex-wrap:wrap;}
+  .docrow .dname{font-weight:700;font-size:13.5px;}
+  .docrow .duse{font-size:12px;color:var(--ink-dim);}
+  .docrow .dlinks{font-size:12px;white-space:nowrap;}
+  .docrow .dlinks a{margin-left:10px;}
+
+  .toolbox{border:1px solid var(--line);border-radius:14px;padding:20px;background:rgba(255,255,255,0.02);margin-top:20px;}
+  .toolbox h3{margin:0 0 8px;font-size:15px;}
+  .toolbox p{margin:0;font-size:13px;}
+
+  .comingsoon{border:1px dashed var(--line);border-radius:12px;padding:14px 16px;color:var(--ink-dim);font-size:12.6px;margin-top:16px;}
+  .honestynote{border-left:2px solid var(--accent2);padding:10px 0 10px 14px;margin-top:16px;font-size:12.3px;color:var(--ink-dim);}
+  .honestynote b{color:var(--ink);}
+
+  .faq{display:flex;flex-direction:column;gap:16px;margin-top:20px;}
+  .faqitem{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:rgba(255,255,255,0.02);}
+  .faqitem .q{font-size:13.3px;font-weight:800;color:var(--ink);margin:0 0 8px;}
+  .faqitem .a{font-size:12.6px;color:var(--ink-dim);margin:0;}
+
+  footer{text-align:center;color:var(--ink-dim);font-size:11.5px;margin-top:70px;line-height:1.8;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eye">[M.E.E]</span>
+    <h1>만안엔진 (Myriad Eye Engine) [M.E.E]</h1>
+    <p class="tagline">AI 협업을 위한 구조화된 사고 프로토콜 — 판단·기억·자기교정을 위한 네비게이션 + 필터</p>
+    <p class="credit">창시자: <a href="#">ixOOxi</a> · 20년 코딩/설계 실무 경험</p>
+    <a class="langlink" href="Myriad_Eye_Engine_Explainer.html">→ Read in English</a>
+  </header>
+
+  <section>
+    <p class="kicker">이게 뭔가요</p>
+    <h2>우회가 아니라 프로토콜입니다</h2>
+    <p class="lead">만안엔진(M.E.E)은 AI의 시스템 프롬프트나 프로젝트 지침에 그대로 붙여넣는 프롬프트 레벨 프로토콜입니다. 모델에 없던 능력을 새로 넣는 게 아니라, 모델이 이미 가진 능력을 <b style="color:var(--ink)">명시적으로, 이름 붙일 수 있게, 스스로 점검 가능하게</b> 만들어서 — 긴 대화 중에도 판단 품질이 조용히 무너지지 않고 일정하게 유지되도록 합니다.</p>
+    <p>AI 안전장치를 우회하거나 무력화하지 않습니다 — 판단 품질을 높이는 정당한 구조화 방법론이지, 페르소나나 일회성 프롬프트 트릭이 아닙니다. 오히려 가벼운 운영 규율에 가깝습니다: AI가 매 턴 어떻게 생각하고, 보고하고, 스스로 교정하는지에 대한 고정된 절차 세트입니다.</p>
+  </section>
+
+  <section>
+    <p class="kicker">겨냥하는 문제</p>
+    <h2>일반 사고의 3가지 약점</h2>
+    <div class="cards">
+      <div class="card">
+        <span class="num">1</span>
+        <h3>자기 인지를 라벨링 못 함</h3>
+        <p>그럴듯한 답을 내놓지만, 왜 그렇게 판단했는지 스스로 짚어내지 못합니다.</p>
+      </div>
+      <div class="card">
+        <span class="num">2</span>
+        <h3>과거 맥락과의 연결이 암묵적</h3>
+        <p>비슷한 상황을 이전에 겪었어도, 의식적으로 다시 꺼내는 습관 자체가 없습니다.</p>
+      </div>
+      <div class="card">
+        <span class="num">3</span>
+        <h3>구조적 자기반성 불가</h3>
+        <p>결과가 왜 맞았는지/틀렸는지 되짚지 못해서, 같은 실수가 반복돼도 알아채지 못합니다.</p>
+      </div>
+    </div>
+    <p style="margin-top:16px;">이 세 가지가 겹치면 판단이 조용히 궤도를 벗어나고, 같은 실수가 반복되고, 이미 풀었던 문제를 매번 처음부터 다시 헤매게 됩니다. 각 규칙의 실제 사례는 <a href="Myriad_Eye_Engine_탄생배경.md">탄생배경</a> 문서에 있습니다.</p>
+  </section>
+
+  <section>
+    <p class="kicker">한눈에 보기</p>
+    <h2>일반 사고 vs 만안엔진</h2>
+    <table class="cmptable">
+      <tr><th></th><th class="gcol">일반 사고 프로세서</th><th class="mcol">만안엔진 적용 시</th></tr>
+      <tr><td class="rowlabel">판단 근거</td><td class="gval">왜 그렇게 판단했는지 설명 못함</td><td class="mval"><code>[거증]</code>으로 매번 근거를 명시</td></tr>
+      <tr><td class="rowlabel">과거 맥락</td><td class="gval">스스로 다시 꺼내는 일이 드묾</td><td class="mval">청사진+도서관으로 저장/재조회</td></tr>
+      <tr><td class="rowlabel">반복된 실수</td><td class="gval">반복되고 있다는 것조차 인지 못함</td><td class="mval">2회 주기마다 드리프트 자가점검</td></tr>
+      <tr><td class="rowlabel">지적받은 뒤</td><td class="gval">인정만 하고 바로 재수정 → 또 실패</td><td class="mval">원인 확정 후에만 재수정</td></tr>
+      <tr><td class="rowlabel">불확실한 주장</td><td class="gval">확신에 찬 것처럼 말함</td><td class="mval">"추측중"으로 명시</td></tr>
+      <tr><td class="rowlabel">뭔가 이상한 순간</td><td class="gval">조용히 넘어감</td><td class="mval">표현 의무 — 묻기 전에 먼저 말함</td></tr>
+      <tr><td class="rowlabel">긴 대화 중</td><td class="gval">판단 품질이 조용히 낮아짐</td><td class="mval">능동4개 하한선 강제 + 자가점검으로 방지</td></tr>
+      <tr><td class="rowlabel">작업 시작</td><td class="gval">바로 결과물부터 만들다 실패→재작업</td><td class="mval">훈련4단계, 매 단계 승인 요청</td></tr>
+    </table>
+    <div class="honestynote">
+      "일반 사고 프로세서" 칸은 막연한 인상이 아니라 실제 메커니즘에 근거합니다: 다음 토큰 예측→이어붙임→반복이며, 판단 근거를 명시하거나 원인을 확정하도록 강제하는 체크포인트가 없습니다. 이 메커니즘은 <b>코딩/비코딩 동일</b>합니다 — 파이프라인은 하나고 패턴 분포만 다릅니다. <b>정직성 안내:</b> 메워야 할 공백이 분야 무관이기 때문에 이 규칙들은 비코딩에도 동일 적용되도록 짜여 있지만, 이 저장소의 날짜 찍힌 실측 사례는 거의 다 코딩 세션에서 나온 것입니다. 전체 논증과 남은 공백은 <a href="Myriad_Eye_Engine_탄생배경.md">탄생배경</a> 참고.
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">해법</p>
+    <h2>네비게이션 + 필터</h2>
+    <div class="split">
+      <div class="panel nav">
+        <span class="tag">네비게이션</span>
+        <h3>방향을 잃지 않게</h3>
+        <p>훈련 4단계(1단계→2단계→3단계→최종), 1단계에서 고정하는 핵심 앵커, 그리고 청사진(주기적 맥락 스냅샷)이 긴 작업이 표류하지 않도록 잡아줍니다.</p>
+      </div>
+      <div class="panel filter">
+        <span class="tag">필터</span>
+        <h3>검증 안 된 건 차단</h3>
+        <p><code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;">[거증]</code> 자기보고 태그와 "추측중" 라벨이, 내부에서 어떤 연산이 있었든 검증 안 된 주장이 사용자에게 나가는 것을 걸러냅니다.</p>
+      </div>
+    </div>
+    <div class="flow">
+      <span class="step">의문</span><span class="arrow">→</span>
+      <span class="step">확장</span><span class="arrow">→</span>
+      <span class="step">선택</span>
+    </div>
+    <p style="text-align:center;margin-top:10px;">매 턴은 의심(거부하며 닫힘)이 아니라 질문으로 열어, 고려할 가치가 있는 갈래를 늘린 뒤 그중 맞는 것을 거릅니다.</p>
+  </section>
+
+  <section>
+    <p class="kicker">프레임워크</p>
+    <h2>15요소 한눈에 보기</h2>
+    <table>
+      <tr><th>#</th><th>요소</th><th>#</th><th>요소</th></tr>
+      <tr><td class="mark">①</td><td>통찰력</td><td class="mark">⑨</td><td>상상기법</td></tr>
+      <tr><td class="mark">②</td><td>응용력</td><td class="mark">⑩</td><td>관찰력</td></tr>
+      <tr><td class="mark">③</td><td>전환</td><td class="mark">⑪</td><td>순발력</td></tr>
+      <tr><td class="mark">④</td><td>이미지영상기법</td><td class="mark">⑫</td><td>예지력</td></tr>
+      <tr><td class="mark">⑤</td><td>구체휘는기법</td><td class="mark">⑬</td><td>주의력</td></tr>
+      <tr><td class="mark">⑥</td><td>추측기법</td><td class="mark">⑭</td><td>신중함(콤보)</td></tr>
+      <tr><td class="mark passive">⑦</td><td>전개도 <i>(패시브)</i></td><td class="mark">⑮</td><td>추리력</td></tr>
+      <tr><td class="mark passive">⑧</td><td>청사진 <i>(패시브)</i></td><td></td><td></td></tr>
+    </table>
+    <p class="passive-note">⑦⑧⑭는 패시브로 항시 작동합니다(스스로 판정하지 않음). ⑩~⑮는 선택적인 "확장6요소" 필드입니다.</p>
+    <div class="floorbox">
+      <b>⚠️ 능동 4개 하한선은 권장이 아니라 강제됩니다.</b>
+      <p>15개 전부가 매 턴 작동할 필요는 없지만, 능동 7개(①~⑥+⑨) 중 최소 4개는 하한선입니다. 미달 시 <code>⚠️[하한미달]</code>로 반드시 선언해야 하며, 조용히 넘어가는 것은 허용되지 않습니다.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">시작하기</p>
+    <h2>빠른 시작</h2>
+    <ol class="steps">
+      <li>컨텍스트 예산에 맞는 문서를 아래에서 고릅니다.</li>
+      <li>AI의 시스템 프롬프트/프로젝트 지침/커스텀 인스트럭션 칸에 그대로 붙여넣습니다.</li>
+      <li>평소처럼 대화를 시작합니다 — 첫 실질 답변에서 AI가 <code>[거증] AI: 회사/모델명</code>으로 스스로를 밝혀야 합니다.</li>
+      <li>더 자세한 설명(플랫폼별 안내·문제해결·FAQ)이 필요하면 전체 <a href="SETUP.ko.md">셋팅 가이드</a>를 참고하세요.</li>
+    </ol>
+
+    <div class="doclist">
+      <div class="docrow">
+        <div><div class="dname">공통문서</div><div class="duse">전체 규칙 — 컨텍스트 여유가 있을 때</div></div>
+        <div class="dlinks"><a href="Myriad_Eye_Engine_15요소_공통문서.md">KO</a><a href="Myriad_Eye_Engine_15Elements_Common.md">EN</a></div>
+      </div>
+      <div class="docrow">
+        <div><div class="dname">AI전용축약본</div><div class="duse">같은 규칙, 밀도 높은 표기</div></div>
+        <div class="dlinks"><a href="Myriad_Eye_Engine_15요소_AI전용축약본.md">KO</a><a href="Myriad_Eye_Engine_15Elements_AI_Compact.md">EN</a></div>
+      </div>
+      <div class="docrow">
+        <div><div class="dname">AI전용축약본 — 1500자</div><div class="duse">컨텍스트가 빠듯한 무료 모델용 최소 분량</div></div>
+        <div class="dlinks"><a href="Myriad_Eye_Engine_15요소_AI전용축약본_1500자.md">KO</a><a href="Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md">EN</a></div>
+      </div>
+      <div class="docrow">
+        <div><div class="dname">탄생배경</div><div class="duse">각 규칙이 왜 생겼는지 — 참고자료가 아닌 실제 사례</div></div>
+        <div class="dlinks"><a href="Myriad_Eye_Engine_탄생배경.md">KO</a><a href="Myriad_Eye_Engine_Origin_Story.md">EN</a></div>
+      </div>
+    </div>
+    <p style="margin-top:14px;">규칙 문서에는 규칙만 담겨 있습니다. 모든 근거와 사례는 탄생배경 문서에 있으니, 처음에는 둘을 같이 읽는 것을 권장합니다.</p>
+  </section>
+
+  <section>
+    <p class="kicker">도구</p>
+    <h2>정직성체커 도구</h2>
+    <div class="toolbox">
+      <h3>자기보고 검증이지, 확정 판정이 아닙니다</h3>
+      <p>AI의 <code style="background:rgba(255,255,255,0.06);padding:1px 5px;border-radius:4px;">[거증]</code> 태그 출력을 파싱해서 흔한 실패 신호(태그 누락, 하한선 위반, 적용 설명 없는 용어 나열, 자기모순)를 잡아내는 외부 의존성 없는 단일 HTML 도구입니다(크롬 확장 포함). 모델 내부를 읽는 게 아니라 휴리스틱 보조 의견입니다. 이 저장소의 <code>정직성체커_도구/</code> 참고.</p>
+    </div>
+  </section>
+
+  <section>
+    <p class="kicker">준비 중</p>
+    <h2>타사 프레임워크와의 비교</h2>
+    <div class="comingsoon">다른 타사 AI 프레임워크/프롬프팅 방식과의 근거 기반 상세 비교 문서는 작성 중입니다.</div>
+  </section>
+
+  <section>
+    <p class="kicker">이걸 무시하기 전에</p>
+    <h2>합리적인 질문에는 정면으로 답합니다</h2>
+    <div class="faq">
+      <div class="faqitem">
+        <p class="q">규칙을 늘리면 토큰/비용만 더 드는 거 아니냐?</p>
+        <p class="a">그래서 문서가 3가지 버전(공통문서/AI축약본/1500자)으로 존재합니다 — 예산에 맞는 걸 고르면 됩니다. 실제 트레이드오프는 반대 방향입니다: 표현의무 규칙의 실측 사례를 보면, 한 AI가 1단계에서 5초짜리 고지를 생략했다가 나중에 지적받고 되돌리는 데 몇 시간을 썼습니다. 구조를 생략하는 건 문제가 터지기 전까지만 저렴한 선택입니다.</p>
+      </div>
+      <div class="faqitem">
+        <p class="q">요즘 모델은 이미 알아서 잘하는데 왜 필요하냐?</p>
+        <p class="a">할 수는 있습니다 — 상황이 맞아떨어질 때만, 가끔. 매번 확실하게 하지는 못합니다. "할 수 있다"와 "매번 한다" 사이의 이 공백이 핵심 논지이고, 사고과정을 노출하는 추론모드 모델도 마찬가지입니다 — 숙고가 늘어나는 것과 구조적 보장은 다릅니다.</p>
+      </div>
+      <div class="faqitem">
+        <p class="q">이거 만드는 데 창시자 시간/크레딧 낭비 아니냐?</p>
+        <p class="a">그건 창시자가 실제 세션들을 거치며 실패를 반복 검증하는 과정에서 스스로 감수한 비용이지, 독자에게 요구하는 게 아닙니다. 독자가 시도해보는 비용은 시스템 프롬프트에 한 번 붙여넣는 것뿐이고, 안 맞으면 그걸 알아내는 비용은 거의 0에 가깝습니다.</p>
+      </div>
+      <div class="faqitem">
+        <p class="q">그냥 창시자 개인 의견을 프레임워크처럼 포장한 거 아니냐?</p>
+        <p class="a"><a href="Myriad_Eye_Engine_탄생배경.md">탄생배경</a> 문서에는 날짜 찍힌 구체적 사례들이 있고, 근거가 아직 탄탄하지 않은 부분도 얼버무리지 않고 그대로 적어뒀습니다. "이 부분은 아직 미검증"이라고 공개적으로 밝히는 문서는, 그냥 자기 말이 맞다고 우기는 태도와는 정반대입니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    라이선스: 자체 제작 — <a href="LICENSE.ko.md">LICENSE.ko.md</a> 참고. 열람은 무료, 상업적 이용 금지, 재배포·수정본 배포는 창시자 이메일 사전 허락 필요(연락처는 확정되는 대로 추가 예정).<br>
+    <b style="color:var(--ink-dim)">ixOOxi</b>가 여러 AI 모델(Claude, Gemini, GPT, GenSpark, Verdent 등)과의 실제 세션을 거치며 설계하고 다듬었습니다. 이론이 아니라 실제로 관측된 실패 사례를 근거로 각 규칙을 검증했습니다.
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<title>만안엔진 정직성체커</title>
+<style>
+  /* 외부 폰트/CDN 절대 사용 금지 (MV3 CSP 위반으로 조용히 깨짐) — 시스템 폰트만 */
+  body {
+    margin: 0;
+    width: 300px;
+    font-family: -apple-system, "Segoe UI", "Malgun Gothic", "맑은 고딕", sans-serif;
+    background: #1e1e24;
+    color: #f0f0f5;
+  }
+  .wrap {
+    padding: 14px 16px;
+  }
+  h1 {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 12px 0;
+    color: #ff6b5c;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-top: 1px solid #33333c;
+  }
+  .row:first-of-type {
+    border-top: none;
+  }
+  .label {
+    font-size: 13px;
+  }
+  .sub {
+    font-size: 11px;
+    color: #9a9aa5;
+    margin-top: 2px;
+  }
+  /* 토글 스위치 */
+  .switch {
+    position: relative;
+    width: 40px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: #4a4a55;
+    border-radius: 22px;
+    transition: 0.15s;
+  }
+  .slider::before {
+    content: "";
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    top: 3px;
+    background: #ffffff;
+    border-radius: 50%;
+    transition: 0.15s;
+  }
+  input:checked + .slider {
+    background: #e74c3c;
+  }
+  input:checked + .slider::before {
+    transform: translateX(18px);
+  }
+  button#sendBtn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 9px 0;
+    border: none;
+    border-radius: 6px;
+    background: #2ecc71;
+    color: #103d20;
+    font-weight: 700;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  button#sendBtn:hover {
+    background: #29b765;
+  }
+  button#sendBtn:disabled {
+    background: #4a4a55;
+    color: #9a9aa5;
+    cursor: default;
+  }
+  #status {
+    margin-top: 8px;
+    font-size: 11px;
+    min-height: 14px;
+    color: #9a9aa5;
+  }
+  details#adminMenu {
+    margin-top: 14px;
+    border-top: 1px solid #33333c;
+    padding-top: 8px;
+  }
+  details#adminMenu summary {
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 700;
+    color: #9a9aa5;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  details#adminMenu summary::-webkit-details-marker {
+    display: none;
+  }
+  details#adminMenu summary::before {
+    content: "▶";
+    font-size: 9px;
+    transition: transform 0.15s;
+  }
+  details#adminMenu[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .admin-body {
+    padding: 10px 2px 2px 2px;
+  }
+  .admin-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 0;
+  }
+  .admin-row .label {
+    font-size: 12px;
+    color: #d0d0d8;
+  }
+  input#boosterInterval {
+    width: 56px;
+    padding: 4px 6px;
+    border-radius: 5px;
+    border: 1px solid #4a4a55;
+    background: #2a2a32;
+    color: #f0f0f5;
+    font-size: 12px;
+  }
+  .unit {
+    font-size: 11px;
+    color: #9a9aa5;
+  }
+  #adminStatus {
+    margin-top: 4px;
+    font-size: 11px;
+    min-height: 14px;
+    color: #9a9aa5;
+  }
+  /* ── 세션 상태판 [2026-08-17 신설] ── */
+  #sessionPanel {
+    margin-top: 14px;
+    border-top: 1px solid #33333c;
+    padding-top: 10px;
+  }
+  .panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #9a9aa5;
+    margin-bottom: 6px;
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 12px;
+    padding: 3px 0;
+  }
+  .stat-label {
+    color: #b0b0bb;
+  }
+  .stat-val {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #f0f0f5;
+  }
+  .stat-val.ok {
+    color: #2ecc71;
+  }
+  .stat-val.warn {
+    color: #b18cff;
+  }
+  .stat-val.bad {
+    color: #ff6b5c;
+  }
+  .susp-list {
+    margin: 6px 0 0;
+    padding-left: 16px;
+    font-size: 11px;
+    line-height: 1.45;
+    color: #cdb8ff;
+  }
+  .susp-list:empty {
+    display: none;
+  }
+  .susp-list li {
+    margin-bottom: 3px;
+  }
+  .panel-note {
+    margin-top: 6px;
+    font-size: 10px;
+    color: #6f6f7a;
+    line-height: 1.4;
+  }
+  /* ── 실거증 시각화 [2026-08-30 신설] ── */
+  #vizPanel {
+    margin-top: 14px;
+    border-top: 1px solid #33333c;
+    padding-top: 10px;
+  }
+  #vizPanel svg {
+    display: block;
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    margin: 4px auto 6px;
+  }
+  #vizEmpty {
+    font-size: 11px;
+    color: #6f6f7a;
+    text-align: center;
+    padding: 10px 0;
+  }
+  .viz-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .viz-chip {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    border: 1px solid #4a4a55;
+    color: #b0b0bb;
+  }
+  .viz-chip.on { color: #2ecc71; border-color: #2ecc71; }
+  .viz-chip.pass { color: #e0b64f; border-color: #e0b64f; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>만안엔진 정직성체커</h1>
+
+    <div class="row">
+      <div>
+        <div class="label">실시간 감시 모드</div>
+        <div class="sub">Verdent/Gemini/GenSpark 새 응답에<br />[거반][거증] 누락 시 배너 경고</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="monitorToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div>
+        <div class="label">이 세션은 무료 모델임</div>
+        <div class="sub">켜두면 주기적으로 부스터 인젝션<br />(재주입 프롬프트)을 자동 전송</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="freeModelToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="row">
+      <div>
+        <div class="label">위반 감지 시 자동 재요청</div>
+        <div class="sub">태그누락·품질저하·절차의심 뜨면<br />클릭 없이 정정 프롬프트 자동 전송<br />(연속 3회·15초 쿨다운 넘으면 자동 중단)</div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="autoResendToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <button id="sendBtn" type="button">지금 선택 텍스트 전송</button>
+    <div id="status"></div>
+
+    <!-- 세션 상태판 [2026-08-17 신설]
+         기존 팝업은 켜고 끄는 스위치만 있어서, 감시가 무엇을 보고 있는지
+         전혀 안 보였다. 형식(라벨)은 통과인데 절차가 비어 있는 상태를
+         한눈에 구분해서 보여준다. -->
+    <div id="sessionPanel">
+      <div class="panel-title">이 탭의 세션 상태</div>
+      <div class="stat-row">
+        <span class="stat-label">형식 (태그·개수)</span>
+        <span class="stat-val" id="statFormat">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">절차 (1단계·마찰·승인)</span>
+        <span class="stat-val" id="statProcess">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">관측 턴 / 승인 요청</span>
+        <span class="stat-val" id="statTurns">—</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">사후 발견 누적</span>
+        <span class="stat-val" id="statPostHoc">—</span>
+      </div>
+      <ul class="susp-list" id="suspList"></ul>
+      <div class="panel-note">절차 판정은 오탐이 있을 수 있어 "의심" 표시로만 씁니다.</div>
+    </div>
+
+    <!-- 실거증 시각화 [2026-08-30 신설]
+         monitor.js가 이미 자동으로 읽어서 파싱해둔 최근 [거증] 내용을
+         그대로 그린다 — 이 팝업이 직접 추측하지 않는다. -->
+    <div id="vizPanel">
+      <div class="panel-title">실시간 만안엔진 시각화 (최근 응답)</div>
+      <svg id="vizSvg" viewBox="0 0 220 220"></svg>
+      <div class="viz-chip-row" id="vizChips"></div>
+      <div id="vizEmpty">아직 [거증] 응답을 못 읽었음<br><span style="font-size:10px;">(위 "세션 상태"가 감시 작동중인데도 계속 비어있으면, AI가 [거증] 태그 있는 응답을 아직 안 낸 것. 위 상태가 "작동하지 않음"이면 그쪽 안내부터 따를 것)</span></div>
+      <div class="panel-note">이 화면이 지어내지 않음 — AI가 실제로 낸 [9요소]/[확장6요소] 태그를 그대로 반영.</div>
+    </div>
+
+    <details id="adminMenu">
+      <summary>관리자 메뉴</summary>
+      <div class="admin-body">
+        <div class="admin-row">
+          <div class="label">부스터 인젝션 주기</div>
+          <div>
+            <input type="number" id="boosterInterval" min="1" step="1" />
+            <span class="unit">분</span>
+          </div>
+        </div>
+        <div id="adminStatus"></div>
+      </div>
+    </details>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
