@@ -1,11 +1,11 @@
 function grabText() {
-  // 텍스트 안에 진짜 태그 줄("[거증] AI:...")이 여러 번 들어있으면(예: 탭 제목/
+  // 텍스트 안에 진짜 태그 줄("[만증] AI:...")이 여러 번 들어있으면(예: 탭 제목/
   // 미리보기 요약이 본문 앞에 중복으로 붙는 사이트가 있음) 가장 마지막(=진짜
   // 본문) 것부터 시작하도록 자른다. 없으면 원본 그대로 반환.
   // 주의: chrome.scripting.executeScript로 페이지에 주입되는 건 이 grabText
   // 함수 하나뿐이라(다른 최상위 함수는 안 딸려옴), 반드시 이 안에서 정의해야 한다.
   function trimToLastRealTag(text) {
-    const realTagPattern = /\[거증\]\s*AI\s*:/g;
+    const realTagPattern = /\[만증\]\s*AI\s*:/g;
     let lastMatch = null;
     let m;
     while ((m = realTagPattern.exec(text)) !== null) {
@@ -20,7 +20,7 @@ function grabText() {
   const sel = window.getSelection().toString();
   if (sel && sel.trim()) return sel.trim();
 
-  // 1순위: "[거증]"이 들어있는 텍스트 노드를 찾아, 그 노드의 부모를 타고
+  // 1순위: "[만증]"이 들어있는 텍스트 노드를 찾아, 그 노드의 부모를 타고
   // 올라가면서 "말풍선 하나" 크기가 될 때까지만 확장한다. 글자수로 무작정
   // 자르면 다음 메시지까지 섞여 들어오는 문제가 있어서, 실제 DOM 구조(메시지
   // 하나 = 컨테이너 하나)를 이용해 경계를 찾는 게 훨씬 정확하다.
@@ -28,7 +28,7 @@ function grabText() {
   let targetNode = null;
   let node;
   while ((node = walker.nextNode())) {
-    if (node.nodeValue && node.nodeValue.indexOf("[거증]") !== -1) {
+    if (node.nodeValue && node.nodeValue.indexOf("[만증]") !== -1) {
       targetNode = node; // 페이지에 여러 번 있으면 가장 마지막(최신) 것 사용
     }
   }
@@ -46,25 +46,25 @@ function grabText() {
     }
     const domText = (best.innerText || "").trim();
     // 같은 말풍선 컨테이너 안에 미리보기/요약용으로 태그 줄이 한 번 더 중복
-    // 렌더링되는 사이트가 있어("Claude 응답: [거증] AI:... " 같은 요약 줄),
+    // 렌더링되는 사이트가 있어("Claude 응답: [만증] AI:... " 같은 요약 줄),
     // 그 경우 진짜 본문(마지막 태그)부터 시작하도록 한 번 더 정리한다.
     if (domText) return trimToLastRealTag(domText);
   }
 
   // 2순위: DOM 탐색이 실패한 경우(구조가 특이한 사이트 등) 예전 방식으로 대체.
   const full = document.body.innerText;
-  const realTagPattern = /\[거증\]\s*AI\s*:/g;
+  const realTagPattern = /\[만증\]\s*AI\s*:/g;
   let lastRealMatch = null;
   let m2;
   while ((m2 = realTagPattern.exec(full)) !== null) {
     lastRealMatch = m2;
   }
-  const tagIndex = lastRealMatch ? lastRealMatch.index : full.lastIndexOf("[거증]");
+  const tagIndex = lastRealMatch ? lastRealMatch.index : full.lastIndexOf("[만증]");
   if (tagIndex === -1) return full;
 
   const MAX_WINDOW = 1500;
   const windowEnd = tagIndex + MAX_WINDOW;
-  const nextTagIndex = full.indexOf("[거증]", tagIndex + 10);
+  const nextTagIndex = full.indexOf("[만증]", tagIndex + 10);
   const cutAt = (nextTagIndex !== -1 && nextTagIndex < windowEnd) ? nextTagIndex : windowEnd;
 
   return full.slice(tagIndex, cutAt).trim();
@@ -78,7 +78,7 @@ async function flashBadge(tabId, text, color) {
 
 console.log("[정직성체커] background.js 로드됨 — 버전: DOM경계탐지-v2 + 실시간감시-v1");
 
-// 기존 기능: 선택 텍스트(또는 DOM 경계탐지로 찾은 최신 [거증] 블록)를
+// 기존 기능: 선택 텍스트(또는 DOM 경계탐지로 찾은 최신 [만증] 블록)를
 // localhost:8900로 전송. manifest에 action.default_popup을 추가하면서
 // chrome.action.onClicked는 더 이상 좌클릭 시 발생하지 않는다(MV3 제약 —
 // default_popup이 있으면 onClicked 자체가 트리거되지 않음). 그래서 이 로직을
@@ -139,7 +139,7 @@ chrome.action.onClicked.addListener((tab) => {
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: "spider-eye-send",
-    title: "정직성체커로 전송 (선택 텍스트 또는 [거증] 자동탐지)",
+    title: "정직성체커로 전송 (선택 텍스트 또는 [만증] 자동탐지)",
     contexts: ["action"]
   });
 });

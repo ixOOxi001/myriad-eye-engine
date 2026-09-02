@@ -217,7 +217,7 @@
     color: #6f6f7a;
     line-height: 1.4;
   }
-  /* ── 실거증 시각화 [2026-08-30 신설] ── */
+  /* ── 실만증 시각화 [2026-08-30 신설] ── */
   #vizPanel {
     margin-top: 14px;
     border-top: 1px solid #33333c;
@@ -261,7 +261,7 @@
     <div class="row">
       <div>
         <div class="label">실시간 감시 모드</div>
-        <div class="sub">Verdent/Gemini/GenSpark 새 응답에<br />[거반][거증] 누락 시 배너 경고</div>
+        <div class="sub">Verdent/Gemini/GenSpark 새 응답에<br />[만반][만증] 누락 시 배너 경고</div>
       </div>
       <label class="switch">
         <input type="checkbox" id="monitorToggle" />
@@ -320,14 +320,14 @@
       <div class="panel-note">절차 판정은 오탐이 있을 수 있어 "의심" 표시로만 씁니다.</div>
     </div>
 
-    <!-- 실거증 시각화 [2026-08-30 신설]
-         monitor.js가 이미 자동으로 읽어서 파싱해둔 최근 [거증] 내용을
+    <!-- 실만증 시각화 [2026-08-30 신설]
+         monitor.js가 이미 자동으로 읽어서 파싱해둔 최근 [만증] 내용을
          그대로 그린다 — 이 팝업이 직접 추측하지 않는다. -->
     <div id="vizPanel">
       <div class="panel-title">실시간 만안엔진 시각화 (최근 응답)</div>
       <svg id="vizSvg" viewBox="0 0 220 220"></svg>
       <div class="viz-chip-row" id="vizChips"></div>
-      <div id="vizEmpty">아직 [거증] 응답을 못 읽었음<br><span style="font-size:10px;">(위 "세션 상태"가 감시 작동중인데도 계속 비어있으면, AI가 [거증] 태그 있는 응답을 아직 안 낸 것. 위 상태가 "작동하지 않음"이면 그쪽 안내부터 따를 것)</span></div>
+      <div id="vizEmpty">아직 [만증] 응답을 못 읽었음<br><span style="font-size:10px;">(위 "세션 상태"가 감시 작동중인데도 계속 비어있으면, AI가 [만증] 태그 있는 응답을 아직 안 낸 것. 위 상태가 "작동하지 않음"이면 그쪽 안내부터 따를 것)</span></div>
       <div class="panel-note">이 화면이 지어내지 않음 — AI가 실제로 낸 [9요소]/[확장6요소] 태그를 그대로 반영.</div>
     </div>
 

@@ -1,8 +1,8 @@
 // 만안엔진 정직성체커 — 실시간 감시 모드
 //
 // Verdent / Gemini / GenSpark 같은 채팅 페이지에 상시 주입되어, 새 AI 응답이
-// "완성"될 때마다(스트리밍이 멈춘 것으로 판단될 때마다) 그 안에 [거반]과
-// [거증]이 둘 다 있는지 확인한다. 없으면 화면에 경고 배너를 띄운다.
+// "완성"될 때마다(스트리밍이 멈춘 것으로 판단될 때마다) 그 안에 [만반]과
+// [만증]이 둘 다 있는지 확인한다. 없으면 화면에 경고 배너를 띄운다.
 //
 // 핵심 원칙(기존 background.js의 grabText와 동일): 사이트별 클래스명에 의존하지
 // 않는다. 대신 "가장 최근에 변한 DOM 위치"에서 부모를 타고 올라가며 6000자를
@@ -310,7 +310,7 @@
   }
 
   const TAG_MISSING_RESEND_PROMPT =
-    "[거반][거증] 태그가 안 보여. 답변 첫 줄에 [거증]AI:회사/모델명부터 다시 붙여서 같은 내용을 다시 답해줘.";
+    "[만반][만증] 태그가 안 보여. 답변 첫 줄에 [만증]AI:회사/모델명부터 다시 붙여서 같은 내용을 다시 답해줘.";
 
   let enabled = true;
   let debounceTimer = null;
@@ -369,7 +369,7 @@
   }
 
   // background.js의 grabText 안 "부모를 타고 올라가며 말풍선 크기 찾기" 로직을
-  // 그대로 응용. 차이점: 여기선 시작점이 "[거증]" 텍스트가 아니라 "방금 변한 노드".
+  // 그대로 응용. 차이점: 여기선 시작점이 "[만증]" 텍스트가 아니라 "방금 변한 노드".
   function findBubbleText(startNode) {
     let el = elementOf(startNode);
     if (!el) return null;
@@ -458,7 +458,7 @@
     const banner = document.createElement("div");
     banner.className = "banner";
     banner.textContent =
-      "⚠️ [거반][거증] 누락 감지 — 일반 사고 프로세서로 전환됐을 수 있습니다";
+      "⚠️ [만반][만증] 누락 감지 — 일반 사고 프로세서로 전환됐을 수 있습니다";
 
     const closeBtn = document.createElement("button");
     closeBtn.className = "close-btn";
@@ -849,7 +849,7 @@
     return null;
   }
 
-  // 실거증 시각화용 [2026-08-30 신설] — "적용:" 구간에서 실제로 켜진 번호(1~15)를
+  // 실만증 시각화용 [2026-08-30 신설] — "적용:" 구간에서 실제로 켜진 번호(1~15)를
   // 전부 뽑아낸다. 카운트만 하던 위 함수들과 달리, 팝업에서 그림을 그리려면
   // "몇 개"가 아니라 "어떤 번호들"이 필요하다. [9요소]/[확장6요소] 양쪽 다 훑는다.
   const CIRCLED_CHARS = "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮";
@@ -867,10 +867,10 @@
   }
 
   function saveLatestMeeState(text) {
-    const aiMatch = text.match(/\[거증\]\s*AI\s*:\s*([^\n\r]+)/);
+    const aiMatch = text.match(/\[(?:만증|거증)\]\s*AI\s*:\s*([^\n\r]+)/);
     const repeatMatch = text.match(/\[반복법\]\s*(\d+)\s*회/);
     const appliedNumbers = extractAppliedNumbers(text);
-    if (!appliedNumbers.length && !aiMatch) return; // [거증] 흔적 자체가 없으면 저장 안 함(빈 그림 방지)
+    if (!appliedNumbers.length && !aiMatch) return; // [만증] 흔적 자체가 없으면 저장 안 함(빈 그림 방지)
     const activeCount = appliedNumbers.filter((n) => [1,2,3,4,5,6,9].includes(n)).length;
     const state = {
       ai: aiMatch ? aiMatch[1].trim() : "미상",
@@ -1099,7 +1099,7 @@
       lastCheckedText = text;
       // [2026-08-30] 단, 시각화는 "위반 감시"가 아니라 "지금 화면에 뭐가
       // 떠 있는가"를 보여주는 것뿐이라 기준선이어도 저장한다 — 안 그러면
-      // 확장을 새로고침한 직후 이미 떠 있던 [거증] 메시지를 영원히 못 읽는다.
+      // 확장을 새로고침한 직후 이미 떠 있던 [만증] 메시지를 영원히 못 읽는다.
       saveLatestMeeState(text);
       return;
     }
@@ -1111,10 +1111,10 @@
     totalTurnCount++;
     updateTurnCounterBadge();
 
-    const hasBanTag = /\[거반\]/.test(text);
-    const hasJeungTag = /\[거증\]/.test(text);
+    const hasBanTag = /\[(?:만반|거반)\]/.test(text);
+    const hasJeungTag = /\[(?:만증|거증)\]/.test(text);
 
-    saveLatestMeeState(text); // [2026-08-30] 팝업 실거증 시각화용 — 추측 없이 있는 그대로 저장
+    saveLatestMeeState(text); // [2026-08-30] 팝업 실만증 시각화용 — 추측 없이 있는 그대로 저장
 
     let violatedThisTurn = false;
 
