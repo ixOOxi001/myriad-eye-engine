@@ -49,9 +49,8 @@ If bestNum < 0 Then
     WScript.Quit
 End If
 
-' 한글 파일명은 URL에서 퍼센트 인코딩이 필요하다. "정직성체커" 부분은 고정이라
-' 인코딩된 문자열을 그대로 쓰고, 버전 숫자만 위에서 찾은 값으로 붙인다.
-encodedName = "MEE_%EC%A0%95%EC%A7%81%EC%84%B1%EC%B2%B4%EC%BB%A4_v" & bestNum & ".html"
+' 파일명이 전부 ASCII라 퍼센트 인코딩이 필요 없다. 버전 숫자만 위에서 찾은 값으로 붙인다.
+encodedName = "MEE_honesty_checker_v" & bestNum & ".html"
 url = "http://localhost:8900/" & encodedName
 
 ' 브라우저로 앱 열기 (기본 브라우저로 열림)

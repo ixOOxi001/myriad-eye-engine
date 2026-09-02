@@ -51,12 +51,12 @@ If you see that, it's working. If you don't see it at all, try Step 5.
 ## Step 5 — If it's not working
 
 - **Nothing like `[Verify]` appears at all.** Some AIs need a nudge on the very first message. Try opening with something like: *"Please follow the instructions I gave you exactly, starting now."*
-- **It worked for a few messages, then stopped.** This is expected on long conversations, especially on free-tier models — see the Origin Story document's notes on "drift." Paste a short reminder back in, or use the [honesty-checker tool](정직성체커_도구/) below to catch it early.
+- **It worked for a few messages, then stopped.** This is expected on long conversations, especially on free-tier models — see the Origin Story document's notes on "drift." Paste a short reminder back in, or use the [honesty-checker tool](honesty-checker-tool/) below to catch it early.
 - **The AI says it can't do this / refuses.** This protocol doesn't ask an AI to bypass any safety rule, so a flat refusal usually means the instructions field wasn't actually saved, or you pasted into the wrong box (a one-time message instead of a persistent settings field). Double-check Step 2.
 
 ## Step 6 (optional) — Use the honesty-checker tool
 
-If you want a second opinion on whether an AI's `[Verify]` output looks legitimate (not just present, but *consistent*), copy the AI's response and paste it into the tool in [`정직성체커_도구/`](정직성체커_도구/) — open the `.html` file in any browser, no installation needed. A Chrome extension version is also included for one-click capture while you're on the AI's site.
+If you want a second opinion on whether an AI's `[Verify]` output looks legitimate (not just present, but *consistent*), copy the AI's response and paste it into the tool in [`honesty-checker-tool/`](honesty-checker-tool/) — open the `.html` file in any browser, no installation needed. A Chrome extension version is also included for one-click capture while you're on the AI's site.
 
 ## Frequently asked questions
 

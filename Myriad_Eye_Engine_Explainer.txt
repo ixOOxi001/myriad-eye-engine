@@ -156,7 +156,7 @@ extension) that parses an AI's [Verify] tag output and flags common
 failure signatures -- missing tags, floor violations, vocabulary-only
 mentions without real application, self-contradicting confidence. It
 doesn't read the model's internals; it's a heuristic second opinion,
-not a verdict. See the 정직성체커_도구/ folder in this repo.
+not a verdict. See the honesty-checker-tool/ folder in this repo.
 
 COMPARISON WITH OTHER APPROACHES
 -----------------------------------

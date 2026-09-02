@@ -81,7 +81,7 @@ The rules documents contain only rules. All reasoning, case studies, and "why" l
 
 ## Honesty-checker tool
 
-A standalone, dependency-free HTML tool (plus an optional Chrome extension) that parses an AI's `[Verify]` tag output and flags common failure signatures — missing tags, floor violations, vocabulary-only mentions without real application, self-contradicting confidence. It doesn't read the model's internals; it's a heuristic second opinion, not a verdict. See [`정직성체커_도구/`](정직성체커_도구/).
+A standalone, dependency-free HTML tool (plus an optional Chrome extension) that parses an AI's `[Verify]` tag output and flags common failure signatures — missing tags, floor violations, vocabulary-only mentions without real application, self-contradicting confidence. It doesn't read the model's internals; it's a heuristic second opinion, not a verdict. See [`honesty-checker-tool/`](honesty-checker-tool/).
 
 ## Comparison with other approaches
 
