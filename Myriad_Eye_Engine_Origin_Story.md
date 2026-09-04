@@ -67,6 +67,15 @@ The procedure this produced: acknowledging alone, without cause analysis, before
 
 ---
 
+## Whether an AI "Understands" a Proverb Reveals Whether the Framework Is Actually Doing Anything
+
+**Measured (during the "sequential processor" era, before the rename to Myriad Eye Engine):** when Gemini's free tier showed signs of collapsing (drift), a Korean proverb — "even if the sky falls, there's a hole to escape through" (roughly: no situation is truly hopeless) — was used as a recovery-prompting line.
+
+- **Without the framework (generic thought processor):** the model recognized the proverb as text, but never connected it to "stop and revert right now" as an actual action — understanding a sentence and applying it to change one's own behavior turned out to be two completely different things, confirmed by direct testing.
+- **With the framework (the sequential-processor predecessor of M.E.E) applied:** the same proverb, given the same way, actually produced understanding and a real response — showing that structural devices like the self-contradiction switch and the Recovery Procedure — mechanisms that turn a signal into an actual stop-and-revert action — are what let a figurative cue like a proverb translate into real behavior change.
+
+**Why:** this is the third weakness named at the top of this document ("no structural self-reflection") showing up in exactly this shape — without a bridge between "understanding a sentence" and "acting on it," no reminder, warning, or metaphor gets acted on, no matter how good it is. M.E.E's various devices (the self-contradiction switch, the Recovery Procedure, the drift self-check) are precisely that bridge.
+
 ## Why the Drift Self-Check Exists
 
 The declared fix for "no structural self-reflection → doesn't even notice a repeated mistake repeating" turned out to have no existing device that actually catches it:
@@ -117,7 +126,9 @@ The Common Document's "Design-First Procedure" states it is "not coding-only —
 
 **But looking back at the dated cases actually recorded in this document, every one of them is either coding (the Baduk debugging session, the Kimi K3 character-rendering bug) or general chat (GenSpark BluePhoto, Gemini Self-Restraint).** An earlier version of the source document contained a sentence to the effect of "applied to a full-length narrative through to completion, without collapse," but the specifics — which piece of writing, which AI, what exactly was confirmed — didn't make it into this Origin Story when the documents were restructured.
 
-So, as of now, "this also applies to non-coding" is backed by **design intent (the mapping exists in the rules)**, not yet by a dated, measured case the way every other claim in this document is. Claiming it's as solid as the coding side would be an overstatement. If a real non-coding session (writing / planning / analysis) is run through the 4 Training stages, the Duty to Express, and `[Verify]` end-to-end without collapse, that case belongs here.
+**Additional argument (2026-09-03, discovered through mapping the 15 elements to Korean proverbs):** each of the 15 elements traces back not to a coding concept but to a Korean proverb — folk wisdom covering the full span of human life (relationships, money, speech, habits, luck, nature), not anything coding-specific (see the Korean-only internal reference `만안엔진_속담_연결.md`, not yet translated or included in this public repo). This produces a real argument: coding itself never engages all 15 either — it repeatedly draws on a narrow subset (mainly Guessing Technique, Insight, Unfolded Diagram). Non-coding work, because it spans the same broad range of situations the proverbs originally covered, has the opportunity to draw on a *wider variety* of the 15 elements — not "all 15 every time," but a broader spread than coding typically exercises. This is a solid reason to expect non-coding applicability, but it remains a logical argument, not field evidence — same caveat as below.
+
+So, as of now, "this also applies to non-coding" is backed by **design intent (the mapping exists in the rules) plus the proverb-based argument above**, not yet by a dated, measured case the way every other claim in this document is. Claiming it's as solid as the coding side would be an overstatement. If a real non-coding session (writing / planning / analysis) is run through the 4 Training stages, the Duty to Express, and `[Verify]` end-to-end without collapse, that case belongs here.
 
 ---
 
