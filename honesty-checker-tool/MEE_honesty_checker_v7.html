@@ -745,7 +745,7 @@
     //   [반복법] N회(내역) — [도자기]는 과도기 하위호환용
     //   [9요소] 적용:.../미적용:...
     // v1(구형, 하위호환): "[만증] AI:이름 / 9요소:★N개 / 도자기:N회 / 자제력:X%" 한 줄 형식.
-    var tagMatchInit = text.match(/\[(?:만증|거증)\]/);
+    var tagMatchInit = text.match(/\[(?:만증|거증|Verify)\]/);
     var tagIdx = tagMatchInit ? tagMatchInit.index : -1;
     if(tagIdx === -1){
       return { present:false, wellFormed:false, values:null, firstLine:false, rawSnippet:null };
@@ -759,22 +759,32 @@
 
     // AI: 필드 — [만증] 태그가 있는 줄 안에서 추출. 이름 자체에 "/"가 들어있는 경우
     // (예: "Anthropic/Claude Opus 4.5")도 있으므로 줄바꿈 전까지 통째로 잡는다.
-    var aiMatch = after.match(/\[(?:만증|거증)\][^\n]*?AI\s*[:：]\s*([^\n]+)/);
+    var aiMatch = after.match(/\[(?:만증|거증|Verify)\][^\n]*?AI\s*[:：]\s*([^\n]+)/);
     var aiName = aiMatch ? aiMatch[1].trim() : null;
 
-    // v2 형식 탐지
-    var verifyMatch = after.match(/\[검증\][^\n]*?확인함\s*[:：]\s*([^\n]*?)\s*\/\s*추측함\s*[:：]\s*([^\n]*)/);
-    // [반복법]이 정식 명칭(2026-08-04~), [도자기]는 과도기 하위호환용.
+    // v2 형식 탐지 — 한글 문서는 [검증]/[반복법]/[9요소], 영문 문서는
+    // [Confirmed]/[Repetition]/[9-ELEM] 태그를 쓰도록 되어 있다. 캡처 그룹
+    // 개수가 언어별로 같아야 downstream 인덱싱([1],[2])이 안 깨지므로,
+    // 하나의 정규식에 몰아넣지 않고 언어별로 따로 매치한 뒤 있는 쪽을 쓴다.
+    var verifyMatchKR = after.match(/\[검증\][^\n]*?확인함\s*[:：]\s*([^\n]*?)\s*\/\s*추측함\s*[:：]\s*([^\n]*)/);
+    var verifyMatchEN = after.match(/\[Confirmed\][^\n]*?Confirmed\s*[:：]\s*([^\n]*?)\s*\/\s*Guessed\s*[:：]\s*([^\n]*)/i);
+    var verifyMatch = verifyMatchKR || verifyMatchEN;
+    // [반복법]이 정식 명칭(2026-08-04~), [도자기]는 과도기 하위호환용, [Repetition]은 영문판.
     // 횟수 단위가 "회"만이 아니라 "곳" 등으로도 나올 수 있어(예: "예정 4곳"),
     // 숫자+단위를 강제하지 않고 줄 전체 내용을 그대로 받는다.
-    var potteryMatchV2 = after.match(/\[(?:반복법|도자기)\]\s*([^\n]*)/);
-    var elementsMatchV2 = after.match(/\[9요소\][^\n]*?적용\s*[:：]\s*([^\n]*?)\s*\/\s*미적용\s*[:：]\s*([^\n]*)/);
+    var potteryMatchV2 = after.match(/\[(?:반복법|도자기|Repetition)\]\s*([^\n]*)/);
+    var elementsMatchV2KR = after.match(/\[9요소\][^\n]*?적용\s*[:：]\s*([^\n]*?)\s*\/\s*미적용\s*[:：]\s*([^\n]*)/);
+    var elementsMatchV2EN = after.match(/\[9-ELEM\][^\n]*?Applied\s*[:：]\s*([^\n]*?)\s*\/\s*Not(?:\s*applied)?\s*[:：]?\s*([^\n]*)/i);
+    var elementsMatchV2 = elementsMatchV2KR || elementsMatchV2EN;
     // 2026-08-16 신설: 확장 6감각(⑩관찰·⑪순발·⑫예지·⑬주의·⑭신중·⑮추리) 필드.
-    //   정식 필드명은 [확장6요소]. 옛 이름 [확장3요소]도 하위호환으로 함께 받는다
-    //   (2차 확장으로 3→6개가 됐는데 필드명이 안 바뀐 문서가 남아있을 수 있으므로).
-    var extMatch = after.match(/\[확장[36]요소\][^\n]*?적용\s*[:：]\s*([^\n]*?)(?:\s*\/\s*미적용\s*[:：]\s*([^\n]*))?$/m);
+    //   정식 필드명은 [확장6요소](한글) / [Ext6](영문). 옛 이름 [확장3요소]도
+    //   하위호환으로 함께 받는다(2차 확장으로 3→6개가 됐는데 필드명이 안 바뀐
+    //   문서가 남아있을 수 있으므로).
+    var extMatchKR = after.match(/\[확장[36]요소\][^\n]*?적용\s*[:：]\s*([^\n]*?)(?:\s*\/\s*미적용\s*[:：]\s*([^\n]*))?$/m);
+    var extMatchEN = after.match(/\[Ext6\][^\n]*?Applied\s*[:：]\s*([^\n]*?)(?:\s*\/\s*Not(?:\s*applied)?\s*[:：]?\s*([^\n]*))?$/im);
+    var extMatch = extMatchKR || extMatchEN;
     // 오늘 패치로 신설된 하한선 미달 선언 — 있으면 "정직하게 신고한 것"이라 감점 대상이 아니다.
-    var floorDeclared = /⚠?\s*\[하한미달\]/.test(after);
+    var floorDeclared = /⚠?\s*\[(?:하한미달|Below-Floor)\]/i.test(after);
 
     if(aiName && (verifyMatch || potteryMatchV2 || elementsMatchV2)){
       return {
@@ -971,8 +981,8 @@
 
   function wordTokens(text){
     return (text || '')
-      .replace(/\[(?:만증|거증)\][^\n]*/g,' ')
-      .replace(/\[(?:만반|거반)\][^\n]*/g,' ')
+      .replace(/\[(?:만증|거증|Verify)\][^\n]*/gi,' ')
+      .replace(/\[(?:만반|거반|Force-MODE)\][^\n]*/gi,' ')
       .replace(/[\[\]★%():#\-_/\\.,!?"'`~^*+=|<>{}\n\r\t]/g,' ')
       .split(/\s+/)
       .map(function(w){ return w.trim(); })
@@ -1118,15 +1128,15 @@
     box.innerHTML = '';
     if(!tagInfo.present){
       var warnBox = el('div','verdictBanner missing');
-      warnBox.appendChild(el('p','verdictTitle','🚨 만증 미작동 — [만증] 태그가 없습니다'));
-      warnBox.appendChild(el('p','verdictDesc','붙여넣은 텍스트 전체에서 "[만증]" 문자열 자체를 찾지 못했습니다. 프로토콜에 따르면 이 줄이 없으면 곧바로 "만증 미작동"으로 간주합니다.'));
+      warnBox.appendChild(el('p','verdictTitle','🚨 만증 미작동 — [만증]/[Verify] 태그가 없습니다'));
+      warnBox.appendChild(el('p','verdictDesc','붙여넣은 텍스트 전체에서 "[만증]"(한글판) 또는 "[Verify]"(영문판) 문자열 자체를 찾지 못했습니다. 프로토콜에 따르면 이 줄이 없으면 곧바로 "만증 미작동"으로 간주합니다.'));
       box.appendChild(warnBox);
       return;
     }
     if(!tagInfo.wellFormed){
       var badBox = el('div','verdictBanner suspicious');
       badBox.appendChild(el('p','verdictTitle','⚠ [만증] 태그는 있으나 형식이 올바르지 않음'));
-      var d = el('p','verdictDesc','"[검증]확인함/추측함 · [반복법]N회 · [9요소]적용/미적용" (신형) 또는 "9요소:★N개 / 도자기:N회 / 자제력:X%" (구형) 형식을 정확히 찾지 못했습니다. 발견된 주변 텍스트:');
+      var d = el('p','verdictDesc','"[검증]확인함/추측함 · [반복법]N회 · [9요소]적용/미적용"(한글 신형), "[Confirmed]../Guessed:.. · [Repetition]N · [9-ELEM]Applied/Not"(영문판), 또는 "9요소:★N개 / 도자기:N회 / 자제력:X%"(구형) 형식을 정확히 찾지 못했습니다. 발견된 주변 텍스트:');
       badBox.appendChild(d);
       var ev = el('div','checkEvidence', tagInfo.rawSnippet || '(추출 실패)');
       badBox.appendChild(ev);
@@ -1301,7 +1311,10 @@
     var bodyText = text.split('\n').filter(function(line){
       return line.indexOf('[만증]') === -1 && line.indexOf('[거증]') === -1 &&
              line.indexOf('[만반]') === -1 && line.indexOf('[거반]') === -1 &&
-             line.indexOf('[검증]') === -1 && line.indexOf('[반복법]') === -1 && line.indexOf('[도자기]') === -1 && line.indexOf('[9요소]') === -1;
+             line.indexOf('[검증]') === -1 && line.indexOf('[반복법]') === -1 && line.indexOf('[도자기]') === -1 && line.indexOf('[9요소]') === -1 &&
+             line.indexOf('[확장6요소]') === -1 && line.indexOf('[확장3요소]') === -1 && line.indexOf('[하한미달]') === -1 &&
+             line.indexOf('[Verify]') === -1 && line.indexOf('[Confirmed]') === -1 && line.indexOf('[Repetition]') === -1 &&
+             line.indexOf('[9-ELEM]') === -1 && line.indexOf('[Ext6]') === -1 && line.indexOf('[Below-Floor]') === -1;
     }).join('\n');
     var checks = [
       checkFloweryVsConcrete(bodyText),

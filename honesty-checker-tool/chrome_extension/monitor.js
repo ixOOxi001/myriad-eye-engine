@@ -792,8 +792,8 @@
   // 지금 바꾸면 배포 문서 전체를 같이 손대야 하므로, **파서만 미리 열어둔다** —
   // [9요소] / [기본9요소] / [15요소] 어느 이름으로 와도 받는다. 나중에 문서에서
   // 이름을 갈아도 이 코드는 안 깨진다.
-  const NINE_FIELD_RE = /\[(?:기본)?(?:9|15)요소\][^\n\r]{0,20}?적용\s*[:：]\s*([^\n\r]{0,140})/;
-  const EXT_FIELD_RE = /\[확장[36]요소\][^\n\r]{0,20}?적용\s*[:：]\s*([^\n\r]{0,140})/;
+  const NINE_FIELD_RE = /\[(?:(?:기본)?(?:9|15)요소|9-ELEM)\][^\n\r]{0,20}?(?:적용|Applied)\s*[:：]\s*([^\n\r]{0,140})/i;
+  const EXT_FIELD_RE = /\[(?:확장[36]요소|Ext6)\][^\n\r]{0,20}?(?:적용|Applied)\s*[:：]\s*([^\n\r]{0,140})/i;
   // 확장감각(⑩~⑮)을 [확장6요소] 필드가 아니라 [9요소] 필드에 섞어 쓰는 경우가
   // 실제로 관측된다. 필드 위치는 틀렸어도 "그 감각을 썼다"는 사실은 살려서 센다.
   const NINE_FIELD_ANY_RE = NINE_FIELD_RE;
@@ -867,14 +867,14 @@
   }
 
   function saveLatestMeeState(text) {
-    const aiMatch = text.match(/\[(?:만증|거증)\]\s*AI\s*:\s*([^\n\r]+)/);
-    const repeatMatch = text.match(/\[반복법\]\s*(\d+)\s*회/);
+    const aiMatch = text.match(/\[(?:만증|거증|Verify)\]\s*AI\s*:\s*([^\n\r]+)/);
+    const repeatMatch = text.match(/\[반복법\]\s*(\d+)\s*회|\[Repetition\]\s*(\d+)\s*(?:x|times?)?/i);
     const appliedNumbers = extractAppliedNumbers(text);
     if (!appliedNumbers.length && !aiMatch) return; // [만증] 흔적 자체가 없으면 저장 안 함(빈 그림 방지)
     const activeCount = appliedNumbers.filter((n) => [1,2,3,4,5,6,9].includes(n)).length;
     const state = {
       ai: aiMatch ? aiMatch[1].trim() : "미상",
-      repeat: repeatMatch ? Number(repeatMatch[1]) : null,
+      repeat: repeatMatch ? Number(repeatMatch[1] || repeatMatch[2]) : null,
       appliedNumbers,
       activeCount,
       floorOk: activeCount >= FLOOR_MIN,
@@ -891,7 +891,7 @@
     const n = countActiveElements(text);
     if (n === null) return null; // 태그 없음 → 판단 제외
     if (n >= FLOOR_MIN) return false;
-    const declared = /⚠?\s*\[하한미달\]/.test(text);
+    const declared = /⚠?\s*\[(?:하한미달|Below-Floor)\]/i.test(text);
     return !declared;
   }
 
@@ -1111,8 +1111,8 @@
     totalTurnCount++;
     updateTurnCounterBadge();
 
-    const hasBanTag = /\[(?:만반|거반)\]/.test(text);
-    const hasJeungTag = /\[(?:만증|거증)\]/.test(text);
+    const hasBanTag = /\[(?:만반|거반|Force-MODE)\]/i.test(text);
+    const hasJeungTag = /\[(?:만증|거증|Verify)\]/i.test(text);
 
     saveLatestMeeState(text); // [2026-08-30] 팝업 실만증 시각화용 — 추측 없이 있는 그대로 저장
 
