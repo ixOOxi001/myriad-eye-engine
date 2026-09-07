@@ -24,6 +24,18 @@ This is not a claim that a generic model is incapable of self-explanation, memor
 
 This is the actual basis for the comparison table below: M.E.E's rules — `[Verify]`, the Duty to Express, the active-4 floor, the Recovery Procedure — are forcing functions bolted onto exactly this gap. Because the gap is domain-independent (it's about the absence of a structural checkpoint, not about coding-specific or writing-specific limits), the rules that patch it are written to be domain-independent too — which is why the Pivot sense's vocabulary switch and the Design-First stage mapping both explicitly cover non-coding. What is *not* yet equally solid is dated field evidence of this working end-to-end on a non-coding task (see the section below) — the mechanism argument and the empirical-verification question are two different things, and this document tries not to blur them.
 
+## Why an AI Forgets Mid-Conversation — Cause and Recovery Path
+
+When an AI loses track of an instructed procedure partway through an ongoing conversation, the rules aren't being deleted — the model appears to be **quietly reverting to the generic thought processor it already had** (the default next-token-prediction path) rather than losing the text. This reversion itself seems to sit inside the model provider's own internal system (context handling, alignment/safety intervention, and the like), which means a prompt-level fix cannot remove the cause — this is inference, not proof, but it is the pattern that best explains what's been observed.
+
+That said, two ways of pulling the model back onto the M.E.E path once it has drifted have been confirmed:
+1. The monitoring app detects the drift and automatically re-injects part of the ruleset.
+2. The user re-enters an explicit instruction such as "return to M.E.E," and the AI snaps back to the original procedure immediately.
+
+In both cases, the cause itself is not removed — what happens is **detecting the drift and correcting it on the spot**.
+
+---
+
 ## Why This Framework Was Needed — 3 Weaknesses of the General-Purpose Thought Processor
 
 The general-purpose (generic) thought processor cannot do the following three things:
