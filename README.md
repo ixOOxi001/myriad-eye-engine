@@ -83,10 +83,6 @@ The rules documents contain only rules. All reasoning, case studies, and "why" l
 
 A standalone, dependency-free HTML tool (plus an optional Chrome extension) that parses an AI's `[Verify]` tag output and flags common failure signatures — missing tags, floor violations, vocabulary-only mentions without real application, self-contradicting confidence. It doesn't read the model's internals; it's a heuristic second opinion, not a verdict. See [`honesty-checker-tool/`](honesty-checker-tool/).
 
-## Comparison with other approaches
-
-A detailed, evidence-based comparison against other third-party AI frameworks/prompting approaches is in progress. Coming soon.
-
 ## Before you dismiss this
 
 Fair questions to ask before writing this off — answered directly, not deflected:
