@@ -100,6 +100,9 @@ They can — occasionally, when the situation happens to call for it. They don't
 **"Isn't building this a waste of the founder's time and credits?"**
 That's a cost the founder chose to pay, over real sessions, iterating against real failures — not something asked of a reader. Trying this costs a reader one paste into a system prompt. If it doesn't help in your case, the cost of finding that out is close to zero.
 
+**"Does this fully stop drift from happening?"**
+No. What causes drift in the first place — context handling, alignment/safety tuning, and other internals — lives inside the model provider's own system, not something a prompt can reach. What Myriad Eye Engine does is not remove the cause; it **detects the drift when it happens and reinforces the rules on the spot**. That's why installing a monitoring tool like the honesty checker is presented as required, not optional — without a detector, pasting the prompt text alone can let the very first collapse slip past unnoticed.
+
 **"Is this just the founder's opinion dressed up as a framework?"**
 The [Origin Story](Myriad_Eye_Engine_Origin_Story.md) records dated, specific cases — including where the evidence is *not* solid yet (see its non-coding verification section) rather than smoothing that over. A document willing to say "this part is unverified" in public is making the opposite move from someone just insisting they're right.
 
