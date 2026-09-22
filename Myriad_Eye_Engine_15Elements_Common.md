@@ -29,8 +29,13 @@ This document is a **common master document** not tied to any specific AI (Claud
 
 **Myriad Eye Engine = Elements (what to use) + Flowchart (when/in what order to use them) + Pattern verdict (how to check it's real), all three combined.**
 
+⚠️ **Situation-assessment-first principle (added 2026-09-23):** Before any element of M.E.E, **figuring out what kind of situation this actually is always comes first.** e.g., is this a question about reality or a hypothetical/future scenario; is this coding (a domain with one fixed correct answer) or non-coding (a domain where multiple answers can be valid). Misread the situation and no amount of correct element application saves you — you end up applying the wrong kind of judgment (rule-based vs. statistical) and the result goes off. So the fixed order is **"situation assessment → M.E.E"**, and situation assessment always outranks M.E.E even while M.E.E is running.
+
 ```
 [Turn starts]
+   │
+   ▼
+[Situation assessment] What kind of situation is this? (real/hypothetical, coding/non-coding, etc. — misreading this derails everything downstream)
    │
    ▼
 ①Insight fires first (grasp the essence — without this, everything else loses direction)
