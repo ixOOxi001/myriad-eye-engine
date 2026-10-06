@@ -72,6 +72,7 @@ AI 안전장치를 우회하거나 무력화하지 않습니다 — 판단 품�
 
 | 문서 | 용도 | English |
 |---|---|---|
+| [`Myriad_Eye_Engine_00_왜_사용해야_하는가_설명.md`](Myriad_Eye_Engine_00_왜_사용해야_하는가_설명.md) | 먼저 읽기 — 왜 상황판단+만안엔진을 쓰는지, 적용 전후 비교 | [Why Use It](Myriad_Eye_Engine_00_Why_Use_It.md) |
 | [`Myriad_Eye_Engine_15요소_공통문서.md`](Myriad_Eye_Engine_15요소_공통문서.md) | 전체 규칙 — 컨텍스트 여유가 있을 때 | [Common](Myriad_Eye_Engine_15Elements_Common.md) |
 | [`Myriad_Eye_Engine_15요소_AI전용축약본.md`](Myriad_Eye_Engine_15요소_AI전용축약본.md) | 같은 규칙, 밀도 높은 표기 | [AI Compact](Myriad_Eye_Engine_15Elements_AI_Compact.md) |
 | [`Myriad_Eye_Engine_15요소_AI전용축약본_1500자.md`](Myriad_Eye_Engine_15요소_AI전용축약본_1500자.md) | 컨텍스트가 빠듯한 무료 모델용 최소 분량 | [1500char](Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md) |

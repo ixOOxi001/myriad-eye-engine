@@ -72,6 +72,7 @@ Not all 15 need to run every turn — but at least 4 of the 7 active elements (�
 
 | Document | Purpose | 한국어 |
 |---|---|---|
+| [`Myriad_Eye_Engine_00_Why_Use_It.md`](Myriad_Eye_Engine_00_Why_Use_It.md) | Read first — why use situation judgment + M.E.E, with before/after comparison | [왜 사용해야 하는가](Myriad_Eye_Engine_00_왜_사용해야_하는가_설명.md) |
 | [`Myriad_Eye_Engine_15Elements_Common.md`](Myriad_Eye_Engine_15Elements_Common.md) | Full rules — use when context budget allows | [공통문서](Myriad_Eye_Engine_15요소_공통문서.md) |
 | [`Myriad_Eye_Engine_15Elements_AI_Compact.md`](Myriad_Eye_Engine_15Elements_AI_Compact.md) | Same rules, dense notation | [AI전용축약본](Myriad_Eye_Engine_15요소_AI전용축약본.md) |
 | [`Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md`](Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md) | Minimal footprint for tight context windows / free-tier models | [1500자본](Myriad_Eye_Engine_15요소_AI전용축약본_1500자.md) |

@@ -5,6 +5,8 @@ Founder: ixOOxi (rud***12@gmail.com)
 
 This is the **common master document**, not tied to any specific AI (Claude/Gemini/GPT/GenSpark etc). When actually loading it into an AI, use this document as-is, or use a condensed version.
 
+**Read first:** before reading the rules, read `Myriad_Eye_Engine_00_Why_Use_It.md` (why use situation judgment + M.E.E, with a before/after comparison).
+
 **This document contains only the rules.** For "why these rules came to exist," see the separate document `Myriad_Eye_Engine_탄생배경.md` (Korean only, origin story).
 
 ---
