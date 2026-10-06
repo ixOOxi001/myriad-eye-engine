@@ -7,7 +7,7 @@ This is the **common master document**, not tied to any specific AI (Claude/Gemi
 
 **Read first:** before reading the rules, read `Myriad_Eye_Engine_00_Why_Use_It.md` (why use situation judgment + M.E.E, with a before/after comparison).
 
-**This document contains only the rules.** For "why these rules came to exist," see the separate document `Myriad_Eye_Engine_탄생배경.md` (Korean only, origin story).
+**This document contains only the rules.** For "why these rules came to exist," see the separate document `Myriad_Eye_Engine_Origin_Story.md` (origin story; the Korean original is `Myriad_Eye_Engine_탄생배경.md`).
 
 ---
 
