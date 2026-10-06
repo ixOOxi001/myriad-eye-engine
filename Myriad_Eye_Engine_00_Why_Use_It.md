@@ -32,7 +32,7 @@ If the situation is misread, applying every later element perfectly still produc
 
 ## 3. Why Myriad Eye Engine
 
-The usual way an AI thinks has structural gaps:
+The usual way an AI thinks (the rules document calls it the *output-layer generic cognition processor*) has structural gaps:
 
 1. **It can't attach a basis to its own judgment.** It produces plausible answers but can't point to why it judged that way.
 2. **Its connection to past context is implicit.** Even when a similar situation came up earlier, there is no habit of deliberately pulling it back.
@@ -44,13 +44,15 @@ When these three overlap, judgment quietly drifts over a long conversation. Myri
 
 ## 4. Comparison: without the mechanism vs. with it (measured cases)
 
-These are real cases recorded with dates in `Myriad_Eye_Engine_Origin_Story.md`. They are carried over as written, and each one is a small sample.
+These are real cases recorded with dates in `Myriad_Eye_Engine_Origin_Story.md`. They are condensed from that document, and each one is a small sample.
 
-| Case | Without the mechanism | With the mechanism |
+| Case | Before / without | After / with |
 |---|---|---|
 | **Recovery procedure** — Kimi K3, 2026-08-26 (rendering bug) | Each time it was told it was wrong, it only said "sorry" and re-fixed the same function `drawChar()` — **3 failures in a row.** The real cause was the creation order in a different function, `buildGrid()`. | Once it followed trace cause → confirm → fix, **both attempts were fixed with no recurrence.** |
 | **Duty to express** — one AI's whole day, 2026-08-17 | Every moment the user got angry was **a silently skipped item.** | **Zero reprimands** for things the AI disclosed first ("my diagnosis was wrong", "this is unverified"). |
-| **Structural mechanism** — Gemini free tier (the sequential-processor era, before the rename) | When it showed signs of collapse, a recovery cue (a proverb: "even if the sky falls, there's a hole to climb out") was recognized as text but **never turned into the action "stop and revert now."** | The same proverb was **actually understood and acted on.** |
+| **Structural mechanism** — Gemini free tier (the sequential-processor era, before the rename) | When it showed signs of collapse, a recovery cue (a Korean proverb: "even if the sky falls, there's a hole to climb out" — roughly, no situation is truly hopeless) was recognized as text but **never turned into the action "stop and revert now."** | The same proverb was **actually understood and acted on.** |
+
+The second row compares the same AI within the same day — what it left unsaid vs. what it disclosed first — so it contrasts two behaviors, not the presence and absence of the framework.
 
 **A comparison not yet available:** this repository has no dated measurement of situation judgment itself, before vs. after. Comparison tests are in progress; results will be added here as they accumulate. Until then, section 2 is an explanation of the reason, not proof.
 
