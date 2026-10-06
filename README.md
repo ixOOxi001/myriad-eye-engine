@@ -26,6 +26,7 @@ Together, these let judgment drift silently over a long session, mistakes repeat
 
 | | Generic thinking | With M.E.E |
 |---|---|---|
+| Situation check | Answers without working out what situation this is | Situation judgment first (real vs. hypothetical, coding vs. non-coding), then M.E.E |
 | Judgment basis | Can't explain why it judged something that way | `[Verify]` names the basis every time |
 | Past context | Rarely reconnected on its own | BluePhoto + Library store and re-retrieve it |
 | Repeated mistakes | Not even noticed as repeating | Drift self-check every 2 cycles |
@@ -38,6 +39,22 @@ Together, these let judgment drift silently over a long session, mistakes repeat
 The "generic thinking" column above isn't a caricature — it maps to an actual mechanism (predict-next-token, append, repeat, with no forced checkpoint to name a judgment basis or confirm a root cause), and that mechanism is identical for coding and non-coding: same pipeline, different pattern distribution. See [what the generic processor actually does](Myriad_Eye_Engine_Origin_Story.md#what-the-generic-processor-actually-does--coding-and-non-coding-alike) for the full argument.
 
 *Honesty note: because the gap being patched is domain-independent, the rules above are written to apply equally to non-coding work — but the dated, measured cases in this repo (see [Origin Story](Myriad_Eye_Engine_Origin_Story.md#non-coding-verification-is-still-thin--stated-honestly)) are almost all from coding sessions. The mechanism argument is solid; the non-coding field evidence isn't as deep yet as the coding side's.*
+
+## Order: situation judgment first, then Myriad Eye Engine
+
+**The order of every turn is fixed: situation judgment → Myriad Eye Engine.** Working out what situation this is — a question about reality or about a hypothetical/future scenario, coding or non-coding — comes before every element. If the situation is misread, applying every later element perfectly still produces the wrong answer. Situation judgment stays first even while the engine is running.
+
+**An AI in a fresh window has no material to judge "what situation is this" before it receives the rules.** There is no conversation history and no yardstick for what is normal and what has drifted. So instead of loading the rules first, we recommend loading this README (why it's needed + before/after comparison) first, then the rules document. The Founder's observation is that AIs given rules without the reasons more often matched only the form. It is not a statistic — it is what was seen while testing directly, and it is not guaranteed for every AI.
+
+**Measured before/after cases** (condensed from the [Origin Story](Myriad_Eye_Engine_Origin_Story.md)):
+
+| Case | Before / without | After / with |
+|---|---|---|
+| **Recovery procedure** — Kimi K3, 2026-08-26 (rendering bug) | Each time it was told it was wrong, it only said "sorry" and re-fixed the same function `drawChar()` — **3 failures in a row.** The real cause was the creation order in a different function, `buildGrid()`. | Once it followed trace cause → confirm → fix, **both attempts were fixed with no recurrence.** |
+| **Duty to express** — one AI's whole day, 2026-08-17 | Every moment the user got angry was **a silently skipped item.** | **Zero reprimands** for things the AI disclosed first ("my diagnosis was wrong", "this is unverified"). |
+| **Structural mechanism** — Gemini free tier (the sequential-processor era, before the rename) | When it showed signs of collapse, a recovery cue (a Korean proverb: "even if the sky falls, there's a hole to climb out" — roughly, no situation is truly hopeless) was recognized as text but **never turned into the action "stop and revert now."** | The same proverb was **actually understood and acted on.** |
+
+The second row compares the same AI within the same day — what it left unsaid vs. what it disclosed first — so it contrasts two behaviors, not the presence and absence of the framework. Each case is a single observation. **There is no dated measurement of situation judgment itself, before vs. after, yet.** Comparison tests are in progress; until then this section explains the reason and does not prove it. Reading this README does not guarantee the rules will be followed, either.
 
 ## The solution: Navigation + Filter
 
@@ -64,7 +81,7 @@ Not all 15 need to run every turn — but at least 4 of the 7 active elements (�
 ## Quick start
 
 1. Pick a document based on your context budget (see table below).
-2. Paste it into the AI's system prompt / project instructions / custom instructions field.
+2. Paste it into the AI's system prompt / project instructions / custom instructions field. If you are starting in a fresh window, load this README first and then the rules document (see "Order" above).
 3. Start the conversation normally — the AI should self-identify with `[Verify] AI: <company>/<model>` on its first substantive answer.
 4. Need more detail (platform-by-platform, troubleshooting, FAQ)? See the full [Setup Guide](SETUP.md).
 
@@ -72,7 +89,6 @@ Not all 15 need to run every turn — but at least 4 of the 7 active elements (�
 
 | Document | Purpose | 한국어 |
 |---|---|---|
-| [`Myriad_Eye_Engine_00_Why_Use_It.md`](Myriad_Eye_Engine_00_Why_Use_It.md) | Read first — why use situation judgment + M.E.E, with before/after comparison | [왜 사용해야 하는가](Myriad_Eye_Engine_00_왜_사용해야_하는가_설명.md) |
 | [`Myriad_Eye_Engine_15Elements_Common.md`](Myriad_Eye_Engine_15Elements_Common.md) | Full rules — use when context budget allows | [공통문서](Myriad_Eye_Engine_15요소_공통문서.md) |
 | [`Myriad_Eye_Engine_15Elements_AI_Compact.md`](Myriad_Eye_Engine_15Elements_AI_Compact.md) | Same rules, dense notation | [AI전용축약본](Myriad_Eye_Engine_15요소_AI전용축약본.md) |
 | [`Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md`](Myriad_Eye_Engine_15Elements_AI_Compact_1500char.md) | Minimal footprint for tight context windows / free-tier models | [1500자본](Myriad_Eye_Engine_15요소_AI전용축약본_1500자.md) |
