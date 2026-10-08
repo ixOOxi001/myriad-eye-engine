@@ -42,7 +42,7 @@ The "generic thinking" column above isn't a caricature — it maps to an actual 
 
 ## Order: situation judgment first, then Myriad Eye Engine
 
-**The order of every turn is fixed: situation judgment → Myriad Eye Engine.** Working out what situation this is — a question about reality or about a hypothetical/future scenario, coding or non-coding — comes before every element. If the situation is misread, applying every later element perfectly still produces the wrong answer. Situation judgment stays first even while the engine is running.
+**The order of every turn is fixed: situation judgment → Myriad Eye Engine.** Working out what situation this is — a question about reality or about a hypothetical/future scenario, coding or non-coding — comes before every element. This includes reading the user's words for their intent rather than only literally: a statement shaped like a question may really be a hint, and the meaning of a short remark is found in the preceding conversation. If the situation is misread, applying every later element perfectly still produces the wrong answer. Situation judgment stays first even while the engine is running.
 
 **An AI in a fresh window has no material to judge "what situation is this" before it receives the rules.** There is no conversation history and no yardstick for what is normal and what has drifted. So instead of loading the rules first, we recommend loading this README (why it's needed + before/after comparison) first, then the rules document. The Founder's observation is that AIs given rules without the reasons more often matched only the form. It is not a statistic — it is what was seen while testing directly, and it is not guaranteed for every AI.
 
