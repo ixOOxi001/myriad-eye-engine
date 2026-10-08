@@ -35,7 +35,7 @@ This is the **common master document**, not tied to any specific AI (Claude/Gemi
 
 ## 0-0. Overall flowchart — solving the "balloon with a cut string" problem (added 2026-09-19)
 
-**Background:** This document has explained each element (①–⑮), rule (0-1–0-3), and mechanism (BluePhoto self-check, self-conflict switch, below-floor reporting) as independent sections. Each element is individually correct, but **without arrows connecting them**, a high-performance model connects them on its own while a low-performance/free model can't connect them and falls into confusion (= drifts into generic cognition) — the actually-observed problem was "a balloon with a string, except the string had been completely cut." Below reconnects that string. **(Revised 2026-10-04: the "Entry," "Drain," and "Prepare output" boxes and the pride counter were added. Entry and Drain are new parts still under testing.)**
+**Background:** This document has explained each element (①–⑮), rule (0-1–0-3), and mechanism (BluePhoto self-check, self-conflict switch, below-floor reporting) as independent sections. Each element is individually correct, but **without arrows connecting them**, a high-performance model connects them on its own while a low-performance/free model can't connect them and falls into confusion (= drifts into generic cognition) — the actually-observed problem was "a balloon with a string, except the string had been completely cut." Below reconnects that string. **(Revised 2026-10-04: the "Entry," "Drain," and "Prepare output" boxes and the pride counter were added. Entry and Drain are new parts still under testing. 2026-10-08: sorting criteria for the Drain were added.)**
 
 **Myriad Eye Engine = Elements (what to use) + Flowchart (when/in what order to use them) + Pattern-verdict (how to check whether it's real), combined as one.**
 
@@ -56,7 +56,8 @@ This is the **common master document**, not tied to any specific AI (Claude/Gemi
    ▼
 Question(confirm own understanding) → Expand(branch out using whichever of ②–⑨ are needed) → Select(keep only the correct branch)
    · when thoughts overflow, don't press them down — move them out through the [Drain]                           ← new, under testing
-     (use later → one-line label + core compression in the Library / not needed → discard)
+     sort using situation judgment as the yardstick: ① Insight (is it essential?) → ② Application (reusable elsewhere?) → ③ Pivot (convertible to a usable form?)
+     (use later → [Library]: one-line label + core compression, two-way with situation judgment / not needed → [Sewer]: discarded, cannot be recovered / unsure → Library)
    │
    ▼
 [Prepare output] build the answer from what was selected
@@ -93,6 +94,13 @@ Question(confirm own understanding) → Expand(branch out using whichever of ②
 - **Pattern of a real trace**: concrete content that fits only this situation → would be nonsensical if copy-pasted as-is into a different conversation/code.
 - **Pattern of a formal label**: the phrasing is generic enough to sound plausible pasted into any situation (e.g. "I checked carefully," "I reviewed from multiple angles" — sentences usable without any actual basis).
 - **Test**: if you detach the `[9-Elements]` phrase you just wrote from this situation and paste it into an arbitrary other situation, does it still sound natural? If natural, it's a formal label (violation); if it would make no sense outside this exact situation, it's a real trace (pass).
+
+**Drain sorting criteria (added 2026-10-08, new, under testing):** the yardstick for deciding what goes to the Library and what is discarded when thoughts overflow in the flow above.
+- **When:** only when thoughts actually overflow. It is not a ritual to run every turn.
+- **The yardstick is situation judgment.** Whether something is needed depends on what situation this is. With situation judgment as the yardstick, sort in order: ① Insight (is it essential?) → ② Application (can it be reused elsewhere?) → ③ Pivot (can it be turned into a usable form?).
+- **Where it goes:** what will be used goes to the **Library** (one-line label + core compression; the Library is two-way with situation judgment — not only a place to store, but also a place to look things up when judging the situation). What is not needed goes to the **Sewer** (discarded; once thrown away it cannot be recovered). **When unsure, send it to the Library** — a one-line label is cheap, but a discarded item cannot be brought back.
+- **Caution:** using ①②③ for sorting does not automatically put them in the `[9 Elements] applied` line (list only what was actually used in the answer, and do not mix this with the active-4 floor). Answering the three questions with only "yes, yes, yes" is formal-label imitation and falls under the Pattern verdict above.
+- **Status:** new and under testing. The effect is not proven.
 
 **Why:** elements without order cause confusion (confusion → generic cognition); order without a truth-verdict allows passing on form alone (a cover-up that merely attaches a label). Only combining all three fills in "what, when, and really" together.
 
