@@ -443,6 +443,8 @@ Silently fixing it without this declaration counts as "covering up a self-confli
 - **What goes in it:** ① anchor (one or two sentences on what the task is and where it ends) ② flow (box numbers, arrows, branches) ③ per-box content — input, process, output, the path on failure, and a situation-judgment check (this box's trap) ④ change log and user suggestions (who suggested what, and when).
 - **Procedure:** make the flowchart and show it to the user, and get approval (or improvement/addition comments) → code only after approval → write code **mapped to the flowchart's box numbers** (box numbers in comments) → when logic changes, **fix the flowchart first, then the code** (record it in the change log) → if lines are lost or tangled, re-code from the flowchart.
 - **One whole flowchart:** the flowchart covers the **whole program**. Do not draw a separate shrunken flowchart for a small fix — fix the affected box in the whole flowchart first, note it in the change log, then fix the code. A new project starts with the whole flowchart.
+- **Drawing it backwards:** when existing code has a problem or the flow looks suspicious, **draw the flowchart backwards from the code.** Drawing it often makes the problem visible. Use the same `.FC` format, find the boxes where the flowchart and the code disagree, and check which one is wrong.
+- **Basis:** for the Founder's retrospective from practical experience, see "Why a Flowchart Before Coding" in `Myriad_Eye_Engine_Origin_Story.md`.
 - **Storage:** keep the flowchart in the Library with a label (⑧ BluePhoto).
 
 ```

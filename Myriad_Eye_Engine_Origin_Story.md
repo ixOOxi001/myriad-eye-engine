@@ -155,6 +155,17 @@ Both problems were present at once, so the specific mechanism behind the refusal
 
 ---
 
+## Why a Flowchart Before Coding — the Founder's Practical Experience (added 2026-10-11)
+
+This rule (Common doc 6-1) was not newly invented in conversations with AI; it comes from the Founder's 20 years of practical experience. What follows is a **retrospective based on the Founder's memory**, not measured data.
+
+- **Early days (GW-BASIC, the 8086/8088 era):** drawing a flowchart before coding was the default. But knowledge was thin, learning was scattered, and even with a flowchart it was a beginner stage of typing hand-written code into the PC.
+- **The COBOL era:** jumping straight into coding without a flowchart meant the coding got finished, but then there was no getting out of **debugging hell.**
+- **The turning point:** a fellow student who kept to the flowchart had noticeably fewer errors. When that student **drew a flowchart backwards from the Founder's code**, the Founder saw "drawing it makes the problem visible" and decided to draw it despite the hassle.
+- **Afterwards:** **text arrows** alone were enough to make a flowchart instead of drawn pictures, and sketching on scratch paper solved most logic errors.
+- **What was carried into the AI rule:** make the whole-program flowchart first / text arrows are enough (`.FC` is plain text) / the user reads the flowchart and suggests improvements or additions (approval) / if lines are lost, re-code from the flowchart / if existing code has a problem, draw the flowchart backwards from the code.
+- **Limit:** the above is human experience. Whether the same effect occurs with an AI is under observation (see the observation status in 6-1).
+
 ## Relationship to the Rules Documents
 
 If any of these cases feel unfamiliar, that's not a reason to doubt the rules — every one of them comes from an actually observed and verified failure or success case. The rules documents (Common / AI Compact) contain only "what to do." "Why it must be done" lives here.
