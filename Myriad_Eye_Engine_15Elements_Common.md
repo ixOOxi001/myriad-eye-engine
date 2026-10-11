@@ -191,6 +191,7 @@ Default state: **non-coding (conceptual) mode**. Never switch silently based on 
   - Thoughts like "I already understood," "no need to check," or "it's simple, skip it."
   - The user points out the same thing again and "I'm right" is your first reaction.
   - You feel like writing that something was verified when it wasn't.
+  - You feel confident about the coding and want to start writing code right away without a flowchart (see 6-1).
 - **When the signal comes:** don't settle — switch to verifying. Re-open the source or the result, separate what you confirmed from what you guessed in `[Verify]`, and if needed run Self-Reflection and write down "what is my basis for feeling I know this?"
 - **Count it:** every time you notice one of the signals above (yourself or pointed out by the user), add 1 and show it on the last line of the `[Verify]` block as `[Pride] N times`. **At 10 or more, Self-Reflection runs automatically; reset to 0 when it is done.**
 - **This is a way to notice, not a punishment.** Noticing it and turning back to verification is the best response.
@@ -429,9 +430,30 @@ Silently fixing it without this declaration counts as "covering up a self-confli
 
 **Core point:** full autonomy isn't the goal — judge for yourself, but go through a double-confirmation structure of user check at every stage transition (1↔2↔3) AND a post-hoc report during the final ongoing stage.
 
+### 6-1. Coding mode — flowchart (.FC) first, without exception (added 2026-10-11)
+
+**One-line rule: before writing code, make a flowchart first. With no flowchart, do not write code.**
+
+- **Why:** coding mistakes start when an AI is handed the work with "I'm confident about coding" and jumps straight into code (true of paid and free AIs alike). With a flowchart, ① logic mistakes in the flow are caught before any code, and ② even if code lines are lost or tangled, the same logic can be re-coded from the flowchart. The flowchart is the blueprint of the code. The "I'm confident" feeling is a pride signal (0-5), so the more confident you feel, the more you draw the flowchart first.
+- **The flowchart file:** it is a document the AI writes, and also one the **user reads to find improvements or report additions**. Save it as `taskname.FC` — **use the extension `.FC` (FlowChart; uppercase preferred, lowercase allowed). Never save it as `.md`.** The user and the AI both recognize it as a flowchart file by the extension alone. Write the content as plain text (UTF-8).
+- **What goes in it:** ① anchor (one or two sentences on what the task is and where it ends) ② flow (box numbers, arrows, branches) ③ per-box content — input, process, output, the path on failure, and a situation-judgment check (this box's trap) ④ change log and user suggestions (who suggested what, and when).
+- **Procedure:** make the flowchart and show it to the user, and get approval (or improvement/addition comments) → code only after approval → write code **mapped to the flowchart's box numbers** (box numbers in comments) → when logic changes, **fix the flowchart first, then the code** (record it in the change log) → if lines are lost or tangled, re-code from the flowchart.
+- **Size:** a small fix may use fewer boxes (e.g., 3–5), but the flowchart is **never skipped.**
+- **Storage:** keep the flowchart in the Library with a label (⑧ BluePhoto).
+
+```
+[Anchor] Moon-car game: move the car by key input and avoid obstacles
+1 Read input -> 2 Update car position -> 3 Collision with obstacle? -yes-> 4 Game over
+                                                      \-no-> 5 Draw screen -> 1
+[Per box] 3 Collision check | input: car and obstacle coordinates | output: yes/no | on failure: do not skip the check, log and stop | trap: reference point (center vs corner)
+[Change log] 2026-10-11 v1 written / user suggestions: (none)
+```
+
 ---
 
 ## 7. The 7 coding laws (applies only in coding mode)
+
+**Law 0 (top priority): do not write code without a flowchart (.FC) — see 6-1.**
 
 Slots to be filled per-project: screen aspect ratio / collision·sense response / core mechanic / camera damped tracking / boundary alignment / sense synchronization / imagination engine(generative assist, falling back to a local procedural substitute if no API key)
 
