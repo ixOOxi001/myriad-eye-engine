@@ -122,6 +122,7 @@ function renderSessionState() {
   const turnsEl = document.getElementById("statTurns");
   const postHocEl = document.getElementById("statPostHoc");
   const prideEl = document.getElementById("statPride");
+  const flowEl = document.getElementById("statFlow");
   const listEl = document.getElementById("suspList");
   if (!fmtEl) return;
 
@@ -156,7 +157,7 @@ function renderSessionState() {
         }
         fmtEl.textContent = res.formatOk
           ? "통과"
-          : `문제 (태그누락 ${res.tagMissing} / 하한위반 ${res.floorBad} / 자만감각 ${res.prideFlags || 0})`;
+          : `문제 (태그누락 ${res.tagMissing} / 하한위반 ${res.floorBad} / 자만감각 ${res.prideFlags || 0} / 순서도 ${res.flowchartFlags || 0})`;
         fmtEl.className = "stat-val " + (res.formatOk ? "ok" : "bad");
 
         const procOk = res.suspicions.length === 0;
@@ -178,6 +179,13 @@ function renderSessionState() {
             (last === null || last === undefined ? "미확인" : `${last}회`) + ` / ${flags}건`;
           prideEl.className =
             "stat-val " + (flags > 0 ? "bad" : (last !== null && last !== undefined && last >= 8 ? "warn" : ""));
+        }
+
+        // [2026-10-11] 순서도: 점검에 걸린 횟수와, 이 대화에서 순서도 흔적을 본 적이 있는지.
+        if (flowEl) {
+          const ff = res.flowchartFlags || 0;
+          flowEl.textContent = `${ff}건 / ${res.flowchartSeen ? "봄" : "못 봄"}`;
+          flowEl.className = "stat-val " + (ff > 0 ? "bad" : "");
         }
 
         listEl.innerHTML = "";

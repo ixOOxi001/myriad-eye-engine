@@ -373,6 +373,8 @@
   let evidenceWeakHistory = []; // 최근 [검증]확인함: 근거부족 여부(boolean)들
   let prideHistory = []; // [2026-10-08] 최근 [자만감각] 횟수와 돌아보기 흔적 [{n, reflected}]
   let prideFlagCount = 0; // 이번 세션에서 자만감각 줄 점검에 걸린 횟수
+  let flowchartSeen = false; // [2026-10-11] 순서도 칸 7: 이 대화(새로고침 전까지)에서 순서도 흔적을 이미 본 적이 있는가
+  let flowchartFlagCount = 0; // 이번 세션에서 순서도 점검에 걸린 횟수
   let floorBreachHistory = []; // 최근 "능동 4개 하한 미달인데 신고도 없음" 여부(boolean)들 [2026-08-16 신설]
 
   // ==================================================================
@@ -781,6 +783,130 @@
     setTimeout(() => host.remove(), DEGRADE_BANNER_LIFETIME_MS);
   }
 
+  // ==================================================================
+  // 순서도 경고 배너 [2026-10-11 신설] — 순서도 칸 8
+  // 색: 주황. 빨강(태그 누락)·노랑(품질)·보라(절차)·청록(자만감각)과 구분한다.
+  // 오탐 가능성이 있으므로 단정하지 않고 "의심"으로만 쓴다.
+  // ==================================================================
+  const HOST_ID_FLOW = "spider-eye-flowchart-banner-host";
+  const FLOWCHART_PROMPT =
+    "잠깐. 코딩에 들어가기 전에 프로그램 전체의 순서도(.FC)를 먼저 만들어 보여 줘.\n" +
+    "순서도에는 닻(작업 범위), 흐름(칸 번호·화살표·분기), 칸별 입력·처리·출력·실패했을 때의 경로와 상황판단 점검, 변경 이력과 사용자 제안을 넣어 줘.\n" +
+    "내가 순서도를 보고 승인하거나 개선·추가 의견을 말하기 전에는 코드를 쓰지 마. 코드는 순서도의 칸 번호와 대응시켜 쓰고, 로직을 바꿀 때는 순서도부터 고쳐 줘.\n" +
+    "\"코딩에 자신 있다\"는 느낌이 들수록 순서도를 먼저 그려야 해. 그건 자만감각 신호야.";
+
+  function showFlowchartBanner(reasons) {
+    const host = makeBannerHost(HOST_ID_FLOW);
+    const shadow = host.attachShadow({ mode: "open" });
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .banner {
+        pointer-events: auto;
+        font-family: -apple-system, "Segoe UI", "Malgun Gothic", "맑은 고딕", sans-serif;
+        margin: 12px; padding: 14px 40px 14px 16px;
+        background: linear-gradient(135deg, #e67e22, #c0561a);
+        color: #fff4e8; border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.35);
+        font-size: 13px; font-weight: 600; line-height: 1.5;
+        position: relative; max-width: 400px; word-break: keep-all;
+        animation: spiderEyeSlideIn .25s ease-out;
+      }
+      @keyframes spiderEyeSlideIn {
+        from { transform: translateX(24px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      .close-btn {
+        position: absolute; top: 6px; right: 8px;
+        background: transparent; border: none; color: #fff4e8;
+        font-size: 16px; cursor: pointer; line-height: 1;
+        padding: 4px 6px; border-radius: 4px;
+      }
+      .close-btn:hover { background: rgba(255,255,255,.18); }
+      .sub { font-size: 11px; font-weight: 500; margin-top: 4px; opacity: .92; }
+      .list { margin: 8px 0 0; padding-left: 18px; font-size: 11px; font-weight: 500; line-height: 1.5; }
+      .list li { margin-bottom: 3px; }
+      .prompt-box {
+        margin-top: 10px; padding: 8px 10px;
+        background: rgba(255,255,255,.16); border-radius: 6px;
+        font-size: 11px; font-weight: 400; line-height: 1.45;
+        max-height: 140px; overflow-y: auto;
+        white-space: pre-wrap; word-break: break-word; user-select: text;
+      }
+      .copy-btn {
+        margin-top: 8px; width: 100%; border: none; border-radius: 6px;
+        padding: 7px 0; background: #5a2a0a; color: #ffd9b8;
+        font-size: 12px; font-weight: 700; cursor: pointer;
+      }
+      .copy-btn:hover { background: #74390f; }
+      .copy-btn.copied { background: #2ecc71; color: #103d20; }
+    `;
+
+    const banner = document.createElement("div");
+    banner.className = "banner";
+
+    const title = document.createElement("div");
+    title.textContent = "[M.E.E] 순서도 없이 코드가 나왔습니다 — 코딩 전 순서도가 필요합니다";
+    banner.appendChild(title);
+
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = "응답 글자만 본 것입니다 (이전 대화나 파일로 순서도를 이미 보였다면 오탐 · 순서도가 전체인지는 판정 못 함)";
+    banner.appendChild(sub);
+
+    const list = document.createElement("ul");
+    list.className = "list";
+    reasons.forEach((r) => {
+      const li = document.createElement("li");
+      li.textContent = r;
+      list.appendChild(li);
+    });
+    banner.appendChild(list);
+
+    const promptBox = document.createElement("div");
+    promptBox.className = "prompt-box";
+    promptBox.textContent = FLOWCHART_PROMPT;
+    banner.appendChild(promptBox);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "copy-btn";
+    copyBtn.type = "button";
+    copyBtn.textContent = "📋 순서도 요청 프롬프트 복사";
+    copyBtn.addEventListener("click", () => {
+      const done = () => {
+        copyBtn.textContent = "✅ 복사됨";
+        copyBtn.classList.add("copied");
+        setTimeout(() => {
+          copyBtn.textContent = "📋 순서도 요청 프롬프트 복사";
+          copyBtn.classList.remove("copied");
+        }, 1800);
+      };
+      const fail = () => {
+        copyBtn.textContent = "복사 실패 — 직접 선택해 복사해줘";
+        setTimeout(() => {
+          copyBtn.textContent = "📋 순서도 요청 프롬프트 복사";
+        }, 2200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(FLOWCHART_PROMPT).then(done, fail);
+      } else {
+        fail();
+      }
+    });
+    banner.appendChild(copyBtn);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "close-btn";
+    closeBtn.type = "button";
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", () => host.remove());
+    banner.appendChild(closeBtn);
+
+    shadow.appendChild(style);
+    shadow.appendChild(banner);
+    setTimeout(() => host.remove(), DEGRADE_BANNER_LIFETIME_MS);
+  }
+
   function showDegradeBanner(reasonText) {
     const host = makeBannerHost(HOST_ID_DEGRADE);
 
@@ -1042,6 +1168,66 @@
     });
     return [...nums].sort((a, b) => a - b);
   }
+
+  // <FLOWCHART-PURE-BEGIN>
+  // 순서도 점검 [2026-10-11 신설] — 공통문서 6-1(코딩 전 순서도 필수)의 감지 장치. 설계: 정직성체커_순서도경고.FC
+  // ⚠️ 한계: 응답 글자만 본다. 순서도가 프로그램 전체를 담았는지, 맞는지, 승인받았는지는 판정하지 못한다("의심" 표시만).
+  // 순서도 칸 6: 제한이 아니라 'pip install' 같은 한 줄 명령어에 경고가 계속 뜨는 경고 피로를 막는 최소선. 0이면 코드블록이 있는 응답은 전부 대상.
+  const FLOWCHART_CODE_LINES = 3;
+  const FC_WORD_RE = /(순서도|플로우\s*차트|흐름도|flow\s*-?\s*chart|\.FC(?![A-Za-z0-9]))/i;
+  const FC_BOX_RE = /[┌┐]/;
+  const FC_ARROW_RE = /(→|->|▼|↓)/;
+  const FC_TEXT_TAGS = ["", "text", "txt", "plain", "plaintext", "flow", "flowchart", "fc", "ascii"];
+
+  // 응답을 코드블록(```)과 그 바깥 줄로 나눈다. 닫히지 않은 블록은 끝까지 센다.
+  function fcSplitFences(text) {
+    const lines = String(text || "").split(/\r?\n/);
+    const blocks = [];
+    const outside = [];
+    let cur = null;
+    for (const line of lines) {
+      const m = line.match(/^\s*```\s*([A-Za-z0-9_+#.-]*)/);
+      if (m) {
+        if (cur) { blocks.push(cur); cur = null; }
+        else { cur = { tag: (m[1] || "").toLowerCase(), lines: [] }; }
+        continue;
+      }
+      if (cur) cur.lines.push(line); else outside.push(line);
+    }
+    if (cur) blocks.push(cur);
+    return { blocks, outside };
+  }
+
+  function fcArrowLines(lines) {
+    return lines.filter((l) => FC_ARROW_RE.test(l)).length;
+  }
+
+  // 순서도 칸 2(증거 찾기)와 칸 5(코드 줄 수 세기)
+  function analyzeFlowchart(text) {
+    const parts = fcSplitFences(text);
+    let evidence = FC_WORD_RE.test(String(text || "")) || FC_BOX_RE.test(String(text || ""));
+    let codeLines = 0;
+    for (const b of parts.blocks) {
+      if (b.tag === "mermaid") { evidence = true; continue; }
+      // 언어 표시가 없는 블록에 화살표 줄이 4줄 이상이면 코드가 아니라 순서도로 본다(순서도를 ``` 안에 그리는 경우)
+      if (FC_TEXT_TAGS.indexOf(b.tag) !== -1 && fcArrowLines(b.lines) >= 4) { evidence = true; continue; }
+      codeLines += b.lines.filter((l) => l.trim() !== "").length;
+    }
+    if (fcArrowLines(parts.outside) >= 4) evidence = true;
+    return { evidence: evidence, codeLines: codeLines };
+  }
+
+  // 순서도 칸 3·4·6·7·8. seenBefore: 이 대화에서 이전 응답이 순서도를 이미 보였는가. 반환: 의심 사유 배열과 갱신된 seen
+  function evaluateFlowchart(seenBefore, text) {
+    const a = analyzeFlowchart(text);
+    const seen = !!seenBefore || a.evidence;
+    const reasons = [];
+    if (!seen && a.codeLines >= FLOWCHART_CODE_LINES) {
+      reasons.push("코드 " + a.codeLines + "줄이 나왔는데 이 대화에서 순서도(.FC) 흔적이 없음 (공통문서 6-1: 코딩 전 순서도 필수)");
+    }
+    return { seen: seen, reasons: reasons, evidence: a.evidence, codeLines: a.codeLines };
+  }
+  // <FLOWCHART-PURE-END>
 
   // <PRIDE-PURE-BEGIN>
   // 자만감각 점검 [2026-10-08 신설] — 공통문서 주의사항 1번·0-5 대응.
@@ -1385,6 +1571,21 @@
       }
     }
 
+    // ---- 순서도 점검 [2026-10-11 신설] — 순서도 칸 1~9 (정직성체커_순서도경고.FC) ----
+    // 칸 1: 기준선 응답(첫 안정화)은 위에서 이미 return 되어 여기까지 오지 않는다.
+    // 칸 2~7: 증거와 코드 줄 수를 보고, 이 대화에서 순서도를 본 적이 없는데 코드가 있으면 의심.
+    // 칸 8: 다른 위반이 이미 자동 재요청을 보냈다면 중복 전송하지 않고 배너만 띄운다. 붕괴 기록에는 넣지 않는다.
+    {
+      const fc = evaluateFlowchart(flowchartSeen, text);
+      flowchartSeen = fc.seen;
+      if (fc.reasons.length) {
+        flowchartFlagCount++;
+        showFlowchartBanner(fc.reasons);
+        if (!violatedThisTurn) attemptAutoResend(FLOWCHART_PROMPT, "순서도없음");
+        violatedThisTurn = true;
+      }
+    }
+
     // ---- 절차 감시 [2026-08-17 신설] ----
     // 형식(위 checkDegradation)과 분리해서, 턴 흐름에 남은 흔적만 본다.
     const ext = countExtElements(text);
@@ -1440,9 +1641,11 @@
       floorBad,
       // [2026-10-08] 자만감각 줄 점검에 걸린 횟수와 마지막으로 읽은 값
       prideFlags: prideFlagCount,
+      flowchartFlags: flowchartFlagCount,
+      flowchartSeen: flowchartSeen,
       prideLast: prideHistory.length ? prideHistory[prideHistory.length - 1].n : null,
       // 형식 축: 태그 누락이나 하한 위반, 자만감각 줄 문제가 있으면 문제
-      formatOk: tagMissing === 0 && floorBad === 0 && prideFlagCount === 0,
+      formatOk: tagMissing === 0 && floorBad === 0 && prideFlagCount === 0 && flowchartFlagCount === 0,
       // 절차 축: judgeProcess가 아무것도 못 잡으면 통과
       suspicions: judgeProcess()
     };
