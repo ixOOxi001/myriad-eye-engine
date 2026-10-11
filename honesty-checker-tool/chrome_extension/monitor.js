@@ -230,6 +230,55 @@
   try { loadAutoResendState(); } catch (e) { console.error("[정직성체커/자동재요청] 상태 로드 실패:", e); }
 
   // ==================================================================
+  // "동일 증상 반복" 감지 [2026-09-13 신설]
+  // ------------------------------------------------------------------
+  // 배경: "같은 증상이 3번 이상 반복되면 일반 사고 프로세서로 간주한다"는
+  // 새 규칙(Myriad_Eye_Engine_15요소_공통문서.md 0-3)의 실제 감지 구현.
+  // AI 응답의 태그/형식만 봐서는 이걸 못 잡는다 — 사용자가 실제로 타이핑해서
+  // 보내는 "안됨/그대로/똑같다" 류 실패 신호가 연속되는지를 봐야 raw 증거가
+  // 된다. 이미 검증된 arFindChatInputCandidate/arGetElementText/
+  // arLooksLikeSendButton(위 자동재요청 섹션)을 그대로 재사용한다.
+  // ==================================================================
+  const FAILURE_SIGNAL_RE = /안\s*(됨|돼|되)|안\s*먹|그대로|똑같|여전히|아직도/;
+  const REPEAT_SYMPTOM_THRESHOLD = 3;
+  const REPEAT_SYMPTOM_PROMPT =
+    "같은 증상이 반복 보고되고 있습니다. 만안엔진 기준으로, 태그를 붙였어도 결과가 안 바뀌면 " +
+    "일반 사고 프로세서로 판정됩니다. 지금까지와 다른 진단 각도로 다시 보고, 같은 원인을 또 짚으려는 " +
+    "것이면 그 사실부터 먼저 밝히십시오.";
+  let repeatFailureStreak = 0;
+
+  function checkFailureSignalOnSend(rawText) {
+    const t = (rawText || "").trim();
+    if (!t) return;
+    if (FAILURE_SIGNAL_RE.test(t)) {
+      repeatFailureStreak++;
+      if (repeatFailureStreak >= REPEAT_SYMPTOM_THRESHOLD) {
+        showProcessBanner([
+          `사용자가 동일 실패 신호를 ${repeatFailureStreak}회 연속 입력 — 일반 사고 프로세서 판정 기준(3회 이상) 해당`
+        ]);
+        attemptAutoResend(REPEAT_SYMPTOM_PROMPT, "동일증상반복");
+        logCollapseOnce("동일증상반복");
+        repeatFailureStreak = 0; // 이번에 이미 반영했으니 다시 쌓기 시작
+      }
+    } else {
+      repeatFailureStreak = 0;
+    }
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.shiftKey) return;
+    if (!isUserInputArea(e.target)) return;
+    checkFailureSignalOnSend(arGetElementText(e.target));
+  }, true);
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest("button, [role='button']") : null;
+    if (!btn || !arLooksLikeSendButton(btn)) return;
+    const inputEl = arFindChatInputCandidate();
+    if (inputEl) checkFailureSignalOnSend(arGetElementText(inputEl));
+  }, true);
+
+  // ==================================================================
   // 턴 카운터 + 붕괴 시점 기록 [2026-08-17 신설]
   // ------------------------------------------------------------------
   // 배경: "언제쯤 새 창으로 넘어가야 할지" 판단할 기준선이 없다는 문제.
