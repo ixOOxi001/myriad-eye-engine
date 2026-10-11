@@ -438,7 +438,7 @@ Silently fixing it without this declaration counts as "covering up a self-confli
 - **The flowchart file:** it is a document the AI writes, and also one the **user reads to find improvements or report additions**. Save it as `taskname.FC` — **use the extension `.FC` (FlowChart; uppercase preferred, lowercase allowed). Never save it as `.md`.** The user and the AI both recognize it as a flowchart file by the extension alone. Write the content as plain text (UTF-8).
 - **What goes in it:** ① anchor (one or two sentences on what the task is and where it ends) ② flow (box numbers, arrows, branches) ③ per-box content — input, process, output, the path on failure, and a situation-judgment check (this box's trap) ④ change log and user suggestions (who suggested what, and when).
 - **Procedure:** make the flowchart and show it to the user, and get approval (or improvement/addition comments) → code only after approval → write code **mapped to the flowchart's box numbers** (box numbers in comments) → when logic changes, **fix the flowchart first, then the code** (record it in the change log) → if lines are lost or tangled, re-code from the flowchart.
-- **Size:** a small fix may use fewer boxes (e.g., 3–5), but the flowchart is **never skipped.**
+- **One whole flowchart:** the flowchart covers the **whole program**. Do not draw a separate shrunken flowchart for a small fix — fix the affected box in the whole flowchart first, note it in the change log, then fix the code. A new project starts with the whole flowchart.
 - **Storage:** keep the flowchart in the Library with a label (⑧ BluePhoto).
 
 ```
