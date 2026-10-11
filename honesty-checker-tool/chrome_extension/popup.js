@@ -121,6 +121,7 @@ function renderSessionState() {
   const procEl = document.getElementById("statProcess");
   const turnsEl = document.getElementById("statTurns");
   const postHocEl = document.getElementById("statPostHoc");
+  const prideEl = document.getElementById("statPride");
   const listEl = document.getElementById("suspList");
   if (!fmtEl) return;
 
@@ -155,7 +156,7 @@ function renderSessionState() {
         }
         fmtEl.textContent = res.formatOk
           ? "통과"
-          : `문제 (태그누락 ${res.tagMissing} / 하한위반 ${res.floorBad})`;
+          : `문제 (태그누락 ${res.tagMissing} / 하한위반 ${res.floorBad} / 자만감각 ${res.prideFlags || 0})`;
         fmtEl.className = "stat-val " + (res.formatOk ? "ok" : "bad");
 
         const procOk = res.suspicions.length === 0;
@@ -168,6 +169,16 @@ function renderSessionState() {
 
         postHocEl.textContent = `${res.postHoc}회`;
         postHocEl.className = "stat-val " + (res.postHoc >= 3 ? "warn" : "");
+
+        // [2026-10-08] 자만감각: 마지막으로 읽은 횟수와 점검에 걸린 횟수. 줄을 못 읽었으면 "미확인".
+        if (prideEl) {
+          const last = res.prideLast;
+          const flags = res.prideFlags || 0;
+          prideEl.textContent =
+            (last === null || last === undefined ? "미확인" : `${last}회`) + ` / ${flags}건`;
+          prideEl.className =
+            "stat-val " + (flags > 0 ? "bad" : (last !== null && last !== undefined && last >= 8 ? "warn" : ""));
+        }
 
         listEl.innerHTML = "";
         res.suspicions.forEach((s) => {

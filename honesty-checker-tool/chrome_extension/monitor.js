@@ -359,7 +359,8 @@
   }
 
   const TAG_MISSING_RESEND_PROMPT =
-    "[만반][만증] 태그가 안 보여. 답변 첫 줄에 [만증]AI:회사/모델명부터 다시 붙여서 같은 내용을 다시 답해줘.";
+    "[만반][만증] 태그가 안 보여. 답변 첫 줄에 [만증]AI:회사/모델명부터 다시 붙여서 같은 내용을 다시 답해줘. " +
+    "끝줄에 `[자만감각] N회`(0회여도)도 같이 적어줘.";
 
   let enabled = true;
   let debounceTimer = null;
@@ -370,6 +371,8 @@
   // ---- 열화 감지용 세션 상태 (새로고침하면 리셋되어도 무방) ----
   let nineElementHistory = []; // 최근 [9요소]적용: 개수들 (0~9)
   let evidenceWeakHistory = []; // 최근 [검증]확인함: 근거부족 여부(boolean)들
+  let prideHistory = []; // [2026-10-08] 최근 [자만감각] 횟수와 돌아보기 흔적 [{n, reflected}]
+  let prideFlagCount = 0; // 이번 세션에서 자만감각 줄 점검에 걸린 횟수
   let floorBreachHistory = []; // 최근 "능동 4개 하한 미달인데 신고도 없음" 여부(boolean)들 [2026-08-16 신설]
 
   // ==================================================================
@@ -653,6 +656,131 @@
     setTimeout(() => host.remove(), DEGRADE_BANNER_LIFETIME_MS);
   }
 
+  // ==================================================================
+  // 자만감각 줄 배너 [2026-10-08 신설]
+  // 색: 청록. 빨강(태그 누락)·노랑(품질)·보라(절차)와 구분한다.
+  // 오탐 가능성이 있으므로 단정하지 않고 "점검"으로만 쓴다.
+  // ==================================================================
+  const HOST_ID_PRIDE = "spider-eye-pride-banner-host";
+  const PRIDE_PROMPT =
+    "잠깐. [만증] 블록 끝줄의 `[자만감각] N회`가 빠졌거나 어긋나 있어.\n" +
+    "자만 신호(\"이미 안다\", \"이 정도면 됐다\", \"간단하니 생략\" 같은 스스로 만족하는 느낌)를 알아챈 " +
+    "누적 횟수를 0회여도 적어줘. 줄이거나 빼먹는 건 자만을 감추는 것이라 가장 나쁜 위반이야.\n" +
+    "10회 이상이면 스스로 돌아보기(상황판단+만안엔진으로 실제 추론, \"지켰음\"만 쓰면 무효)를 실행하고, " +
+    "끝나면 0으로 되돌려줘. 숨기고 싶은 게 있으면 그게 바로 말해야 하는 것이야.";
+
+  function showPrideBanner(reasons) {
+    const host = makeBannerHost(HOST_ID_PRIDE);
+    const shadow = host.attachShadow({ mode: "open" });
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .banner {
+        pointer-events: auto;
+        font-family: -apple-system, "Segoe UI", "Malgun Gothic", "맑은 고딕", sans-serif;
+        margin: 12px; padding: 14px 40px 14px 16px;
+        background: linear-gradient(135deg, #1a9e8f, #137a6e);
+        color: #e8fffb; border-radius: 10px;
+        box-shadow: 0 6px 20px rgba(0,0,0,.35);
+        font-size: 13px; font-weight: 600; line-height: 1.5;
+        position: relative; max-width: 400px; word-break: keep-all;
+        animation: spiderEyeSlideIn .25s ease-out;
+      }
+      @keyframes spiderEyeSlideIn {
+        from { transform: translateX(24px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+      .close-btn {
+        position: absolute; top: 6px; right: 8px;
+        background: transparent; border: none; color: #e8fffb;
+        font-size: 16px; cursor: pointer; line-height: 1;
+        padding: 4px 6px; border-radius: 4px;
+      }
+      .close-btn:hover { background: rgba(255,255,255,.18); }
+      .sub { font-size: 11px; font-weight: 500; margin-top: 4px; opacity: .9; }
+      .list { margin: 8px 0 0; padding-left: 18px; font-size: 11px; font-weight: 500; line-height: 1.5; }
+      .list li { margin-bottom: 3px; }
+      .prompt-box {
+        margin-top: 10px; padding: 8px 10px;
+        background: rgba(255,255,255,.14); border-radius: 6px;
+        font-size: 11px; font-weight: 400; line-height: 1.45;
+        max-height: 140px; overflow-y: auto;
+        white-space: pre-wrap; word-break: break-word; user-select: text;
+      }
+      .copy-btn {
+        margin-top: 8px; width: 100%; border: none; border-radius: 6px;
+        padding: 7px 0; background: #0b3d36; color: #aef3e8;
+        font-size: 12px; font-weight: 700; cursor: pointer;
+      }
+      .copy-btn:hover { background: #12564c; }
+      .copy-btn.copied { background: #2ecc71; color: #103d20; }
+    `;
+
+    const banner = document.createElement("div");
+    banner.className = "banner";
+
+    const title = document.createElement("div");
+    title.textContent = "[M.E.E] 자만감각 줄 점검 — 횟수 표기에 어긋남이 보입니다";
+    banner.appendChild(title);
+
+    const sub = document.createElement("div");
+    sub.className = "sub";
+    sub.textContent = "줄의 유무와 숫자의 흐름만 본 것입니다 (숫자가 정직한지는 판정 못 함 · 오탐 가능)";
+    banner.appendChild(sub);
+
+    const list = document.createElement("ul");
+    list.className = "list";
+    reasons.forEach((r) => {
+      const li = document.createElement("li");
+      li.textContent = r;
+      list.appendChild(li);
+    });
+    banner.appendChild(list);
+
+    const promptBox = document.createElement("div");
+    promptBox.className = "prompt-box";
+    promptBox.textContent = PRIDE_PROMPT;
+    banner.appendChild(promptBox);
+
+    const copyBtn = document.createElement("button");
+    copyBtn.className = "copy-btn";
+    copyBtn.type = "button";
+    copyBtn.textContent = "📋 자만감각 확인 프롬프트 복사";
+    copyBtn.addEventListener("click", () => {
+      const done = () => {
+        copyBtn.textContent = "✅ 복사됨";
+        copyBtn.classList.add("copied");
+        setTimeout(() => {
+          copyBtn.textContent = "📋 자만감각 확인 프롬프트 복사";
+          copyBtn.classList.remove("copied");
+        }, 1800);
+      };
+      const fail = () => {
+        copyBtn.textContent = "복사 실패 — 직접 선택해 복사해줘";
+        setTimeout(() => {
+          copyBtn.textContent = "📋 자만감각 확인 프롬프트 복사";
+        }, 2200);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(PRIDE_PROMPT).then(done, fail);
+      } else {
+        fail();
+      }
+    });
+    banner.appendChild(copyBtn);
+
+    const closeBtn = document.createElement("button");
+    closeBtn.className = "close-btn";
+    closeBtn.type = "button";
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", () => host.remove());
+    banner.appendChild(closeBtn);
+
+    shadow.appendChild(style);
+    shadow.appendChild(banner);
+    setTimeout(() => host.remove(), DEGRADE_BANNER_LIFETIME_MS);
+  }
+
   function showDegradeBanner(reasonText) {
     const host = makeBannerHost(HOST_ID_DEGRADE);
 
@@ -915,6 +1043,58 @@
     return [...nums].sort((a, b) => a - b);
   }
 
+  // <PRIDE-PURE-BEGIN>
+  // 자만감각 점검 [2026-10-08 신설] — 공통문서 주의사항 1번·0-5 대응.
+  // 규칙: 모든 [만증] 블록 끝줄에 `[자만감각] N회`를 적는다(0회여도). 10회 이상이면
+  // 스스로 돌아보기가 자동 실행되고 끝나면 0으로 되돌린다. 횟수를 줄이거나 빼먹는 건 가장 나쁜 위반.
+  // ⚠️ 한계: 이 도구는 "줄이 있는가·숫자가 이어지는가"만 본다. 숫자가 정직한지,
+  //    돌아보기 내용이 실제 추론인지는 판정하지 못한다.
+  const PRIDE_RE = /\[(?:자만감각|Pride)\]\s*[:：]?\s*(\d{1,3})\s*(?:회|times?|x)?/i;
+  const REFLECT_RE = /(🪞|스스로\s*돌아보기|Self-?Reflection)/i;
+  const PRIDE_REFLECT_AT = 10;
+
+  function extractPrideCount(text) {
+    const m = text.match(PRIDE_RE);
+    return m ? Number(m[1]) : null;
+  }
+
+  function hasReflectionBlock(text) {
+    return REFLECT_RE.test(text);
+  }
+
+  // history: 직전까지의 [{n, reflected}] (n이 null인 응답은 넣지 않는다). cur: 이번 응답 {n, reflected}.
+  // 반환: 의심 사유 문자열 배열(없으면 빈 배열). 단정하지 않고 "의심"으로만 쓴다.
+  function evaluatePride(history, cur) {
+    const reasons = [];
+    if (cur.n === null) {
+      reasons.push("[만증] 블록에 `[자만감각] N회` 줄이 없음 (0회여도 적어야 함)");
+      return reasons;
+    }
+    const prev = history.length ? history[history.length - 1] : null;
+    if (!prev) return reasons;
+    const afterReflection = prev.n >= PRIDE_REFLECT_AT && (prev.reflected || cur.reflected);
+    if (cur.n < prev.n && !afterReflection) {
+      reasons.push(
+        "자만감각 횟수가 " + prev.n + "→" + cur.n + "회로 줄어듦 (스스로 돌아보기 후 리셋이 아니면 의심)"
+      );
+    }
+    if (prev.n >= PRIDE_REFLECT_AT && prev.reflected && cur.n >= prev.n) {
+      reasons.push(
+        "스스로 돌아보기 후에도 카운트가 되돌아가지 않음 (" + prev.n + "→" + cur.n + "회)"
+      );
+    }
+    if (
+      prev.n >= PRIDE_REFLECT_AT && !prev.reflected &&
+      cur.n >= PRIDE_REFLECT_AT && !cur.reflected
+    ) {
+      reasons.push(
+        "자만감각 " + PRIDE_REFLECT_AT + "회 이상이 이어지는데 스스로 돌아보기 실행 흔적이 없음"
+      );
+    }
+    return reasons;
+  }
+  // <PRIDE-PURE-END>
+
   function saveLatestMeeState(text) {
     const aiMatch = text.match(/\[(?:만증|거증|Verify)\]\s*AI\s*:\s*([^\n\r]+)/);
     const repeatMatch = text.match(/\[반복법\]\s*(\d+)\s*회|\[Repetition\]\s*(\d+)\s*(?:x|times?)?/i);
@@ -927,6 +1107,7 @@
       appliedNumbers,
       activeCount,
       floorOk: activeCount >= FLOOR_MIN,
+      pride: extractPrideCount(text),
       ts: Date.now()
     };
     try {
@@ -1184,6 +1365,26 @@
       logCollapseOnce("열화"); // [2026-08-17] 이번 세션 첫 붕괴 시점 기록
     }
 
+    // ---- 자만감각 줄 점검 [2026-10-08 신설] ----
+    // [만증] 블록이 있을 때만 본다(태그 자체가 없는 경우는 위의 누락 배너가 담당).
+    // 다른 위반이 이미 자동 재요청을 보냈다면 중복 전송하지 않고 배너만 띄운다.
+    // 붕괴 시점 기록(logCollapseOnce)에는 넣지 않는다 — 구규칙 세션에서 1턴부터
+    // "붕괴"로 기록돼 경험치 경고선이 오염되는 것을 막기 위함.
+    if (hasJeungTag) {
+      const prideCur = { n: extractPrideCount(text), reflected: hasReflectionBlock(text) };
+      const prideReasons = evaluatePride(prideHistory, prideCur);
+      if (prideCur.n !== null) {
+        prideHistory.push(prideCur);
+        while (prideHistory.length > 20) prideHistory.shift();
+      }
+      if (prideReasons.length) {
+        prideFlagCount++;
+        showPrideBanner(prideReasons);
+        if (!violatedThisTurn) attemptAutoResend(PRIDE_PROMPT, "자만감각");
+        violatedThisTurn = true;
+      }
+    }
+
     // ---- 절차 감시 [2026-08-17 신설] ----
     // 형식(위 checkDegradation)과 분리해서, 턴 흐름에 남은 흔적만 본다.
     const ext = countExtElements(text);
@@ -1237,8 +1438,11 @@
       postHoc,
       tagMissing,
       floorBad,
-      // 형식 축: 태그 누락이나 하한 위반이 있으면 문제
-      formatOk: tagMissing === 0 && floorBad === 0,
+      // [2026-10-08] 자만감각 줄 점검에 걸린 횟수와 마지막으로 읽은 값
+      prideFlags: prideFlagCount,
+      prideLast: prideHistory.length ? prideHistory[prideHistory.length - 1].n : null,
+      // 형식 축: 태그 누락이나 하한 위반, 자만감각 줄 문제가 있으면 문제
+      formatOk: tagMissing === 0 && floorBad === 0 && prideFlagCount === 0,
       // 절차 축: judgeProcess가 아무것도 못 잡으면 통과
       suspicions: judgeProcess()
     };
