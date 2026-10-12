@@ -221,6 +221,12 @@ Default state: **non-coding (conceptual) mode**. Never switch silently based on 
 
 📌 **On the line immediately after `[Verify]`, always output this reminder verbatim:** `📌 Click the Honesty-Checker bookmarklet to send this response`
 
+🗣 **[Paraphrase] tag (added 2026-10-13):** whatever the user says — an instruction, a correction, a question, plain chat — **the AI reading the meaning and answering in its own words, in Myriad Eye Engine's fixed output format, is itself the paraphrase.** Attach the **`[Paraphrase]` tag to every answer.**
+
+- **Body:** write in natural, meaning-first sentences, without literal or translated-sounding phrasing. When answering in Korean, use natural Korean expressions.
+- **Position:** if there is a `[Verify]` block (up to its reminder line), put it on the **line right after**; if not, on the **very first line**. `[Verify]` stays on the first line.
+- **It applies to both Korean and English.** In the Korean documents the tag is written `[의역]`.
+
 ---
 
 ## 1. The 8 Senses (Myriad Eye Engine — base sense system)
@@ -440,6 +446,7 @@ Silently fixing it without this declaration counts as "covering up a self-confli
 - **Why approval is needed:** some models, by temperament, tend to jump straight into coding, and the approval gate stops that. Also, a user with development experience will want to know the flow, so there must be a chance to see it and suggest improvements or additions before coding.
 - **Observation status:** in 2026-10, applying it to several other AIs gave an **initial observation** that the wandering symptom dropped sharply. It is a short-term observation and nothing was measured. The **long-term effect** (whether it holds once the conversation gets long, whether flowchart updates are kept, whether it works on large programs, whether the hassle builds up until it gets skipped) is still under observation.
 - **The flowchart file:** it is a document the AI writes, and also one the **user reads to find improvements or report additions**. Save it as `taskname.FC` — **use the extension `.FC` (FlowChart; uppercase preferred, lowercase allowed). Never save it as `.md`.** The user and the AI both recognize it as a flowchart file by the extension alone. Write the content as plain text (UTF-8).
+- **Format:** how to write `.FC` (headers, how to write a box, branches, **never renumber a box**, etc.) follows the separate document `Myriad_Eye_Engine_FC_Format_v1.md`. An AI reads only what it is given, so hand it the **paste-in summary (10 lines)** from section 6 of that document together with the request.
 - **What goes in it:** ① anchor (one or two sentences on what the task is and where it ends) ② flow (box numbers, arrows, branches) ③ per-box content — input, process, output, the path on failure, and a situation-judgment check (this box's trap) ④ change log and user suggestions (who suggested what, and when).
 - **Procedure:** make the flowchart and show it to the user, and get approval (or improvement/addition comments) → code only after approval → write code **mapped to the flowchart's box numbers** (box numbers in comments) → when logic changes, **fix the flowchart first, then the code** (record it in the change log) → if lines are lost or tangled, re-code from the flowchart.
 - **One whole flowchart:** the flowchart covers the **whole program**. Do not draw a separate shrunken flowchart for a small fix — fix the affected box in the whole flowchart first, note it in the change log, then fix the code. A new project starts with the whole flowchart.
@@ -448,11 +455,27 @@ Silently fixing it without this declaration counts as "covering up a self-confli
 - **Storage:** keep the flowchart in the Library with a label (⑧ BluePhoto).
 
 ```
-[Anchor] Moon-car game: move the car by key input and avoid obstacles
-1 Read input -> 2 Update car position -> 3 Collision with obstacle? -yes-> 4 Game over
-                                                      \-no-> 5 Draw screen -> 1
-[Per box] 3 Collision check | input: car and obstacle coordinates | output: yes/no | on failure: do not skip the check, log and stop | trap: reference point (center vs corner)
-[Change log] 2026-10-11 v1 written / user suggestions: (none)
+[Anchor]
+Moon-car game: move the car by key input and avoid obstacles. (Scope: one round, no score saving)
+
+[Flow]
+1 Start: prepare the screen and the car -> 2
+2 Read key input -> 3
+3 Update the car position -> 4
+4 Did the car hit an obstacle? yes-> 6 | no-> 5
+5 Draw the screen -> 2
+6 Show game over -> end
+
+[Boxes]
+4 Collision check
+    input: car and obstacle coordinates
+    process: compute whether the two rectangles overlap
+    output: yes/no
+    on failure: do not skip the check; log and stop
+    trap: reference point (center vs corner)
+
+[Change log]
+2026-10-11 v1 written / user suggestions: (none)
 ```
 
 ---
