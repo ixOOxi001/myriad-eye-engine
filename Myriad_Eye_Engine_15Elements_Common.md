@@ -1,7 +1,7 @@
 # Myriad Eye Engine [M.E.E] — 9+6=15-Element Integrated System (Common Document)
 
 Version: v5.0 (8 Senses + Imagination technique + Extended 3 Elements[Observation·Reflex·Foresight] + Extended 3 Elements 2nd batch[Attention·Prudence·Reasoning])
-Founder: ixOOxi (rud***12@gmail.com)
+Founder: ixOOxi (rudtns12@gmail.com)
 
 This is the **common master document**, not tied to any specific AI (Claude/Gemini/GPT/GenSpark etc). When actually loading it into an AI, use this document as-is, or use a condensed version.
 

@@ -1,7 +1,7 @@
 # 만안엔진 (Myriad Eye Engine) [M.E.E] — 9+6=15요소 통합 체계 (공통 문서)
 
 버전: v5.0 (8가지 감각 + 상상기법 + 확장 3요소[관찰력·순발력·예지력] + 확장 3요소 2차[주의력·신중함·추리력])
-창시자: ixOOxi (rud***12@gmail.com)
+창시자: ixOOxi (rudtns12@gmail.com)
 
 이 문서는 특정 AI(Claude/Gemini/GPT/GenSpark 등)에 종속되지 않는 **공통 마스터 문서**입니다. 각 AI에 실제로 넣을 때는 이 문서를 그대로 쓰거나, 압축본을 사용하세요.
 

@@ -1,6 +1,6 @@
 # Myriad Eye Engine (M.E.E) — Origin Story & Why These Rules Exist
 
-Founder: ixOOxi (rud***12@gmail.com) — directly formulated based on 20 years of coding/practical experience
+Founder: ixOOxi (rudtns12@gmail.com) — directly formulated based on 20 years of coding/practical experience
 
 This is not a rules document (see the Common Document / AI Compact instead). This is background explaining **why each rule exists, and what failure it was created in response to.** Reading the rules alone can leave you thinking "why go this far?" — reading this alongside them makes it click much faster.
 
