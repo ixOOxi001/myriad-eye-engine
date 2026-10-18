@@ -36,20 +36,22 @@ In both cases, the cause itself is not removed — what happens is **detecting t
 
 ---
 
-## Why This Framework Was Needed — 3 Weaknesses of the General-Purpose Thought Processor
+## Why This Framework Was Needed — 4 Weaknesses of the General-Purpose Thought Processor
 
-The general-purpose (generic) thought processor cannot do the following three things:
+The general-purpose (generic) thought processor cannot do the following four things:
 
 1. **It cannot label its own cognition.** It can produce plausible-sounding answers, but cannot point to and name "why I just judged this the way I did."
 2. **Its explicit connection to past context is weak.** Even with a similar past situation available, there's no habit of consciously pulling it back up and connecting it to the present.
 3. **It cannot structurally self-reflect.** It cannot systematically retrace why a result was right or wrong — so it doesn't even notice a repeated mistake repeating.
+4. **It does not first work out what the user is doing with an utterance — and when it does not know, it does not ask.** An order, a question, a joke, a vent, a blame and a confirmation all arrive as words; the generic processor tends to turn every one of them into an order, fill any gap in its understanding with its own inference, and act on the guess. (Observed 2026-10-18 in a paid, high-capability model, by the user: questions such as "why does the screen freeze in boss fights?" were handled as orders — code and game balance were edited unasked — and each problem was examined only from the model's own side, never the user's. After about ten such episodes the user's patience, kept over four months of shared work, ran out. A capable model can always produce a plausible reading, so it feels less need to ask; this is the user's observation, not a proven law.)
 
 When these overlap, an AI's judgment can drift off course without noticing, repeat mistakes, and re-struggle from scratch with problems it already solved.
 
-**Myriad Eye Engine (the 9 elements) + Training + `[Force-MODE][Verify]` fill exactly these three gaps:**
+**Myriad Eye Engine (the 9 elements) + Training + `[Force-MODE][Verify]` fill exactly these four gaps:**
 - Gap 1 (no labeling) → the `[9-ELEM]` tag forces explicit naming every time
 - Gap 2 (no connection to the past) → BluePhoto + Library store/re-retrieve past segments
 - Gap 3 (no structural reflection) → Repetition Method's self-review at every Training-stage transition, immediate restart on self-contradiction
+- Gap 4 (no first-step listening) → Step 0 of every turn (0-0): listen → classify the words from the user's side → understood: answer to that / not understood: ask plainly, never guess; only an order permits action
 
 In other words, this framework doesn't implant a new ability — it makes an existing ability something the AI can consciously recognize and name.
 
